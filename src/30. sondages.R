@@ -1,5 +1,14 @@
+#**************************************************************************
+#* Introduction à la Théorie des Sondages avec R                          *
+#* Ludovic Deneuville                                                     *
+#* ENSAI 2023                                                             *
+#**************************************************************************
+
+
 rm(list=ls())
 
+# install.packages("Rlab")
+library(Rlab)      # pour la loi de Bernouilli
 library(dplyr)
 
 setwd("P:/Ludo/Tuto/R-tuto")
@@ -35,7 +44,28 @@ Pi_k <- n / N               # Probabilites d inclusion
 Pi_kl <- n/N * (n-1)/(N-1)  # Probabilites d inclusion d ordre 2
 
 
-# Creation d un premier echantillon S1
+# ------------------------------
+# Exemple de tirage
+# ------------------------------
+
+# On fait N tirages
+rbern(N, prob = Pi_k) == 1
+
+# Le probleme est que l on n est pas du tout sur d avoir n individus tires
+# il peut y en avoir plus ou moins
+aeroports[rbern(N, prob = Pi_k) == 1,]
+
+# Par exemple si l on simule 10 tirages voici le resultat
+for (i in 1:10) {
+  print(sprintf("Tirage %s : nombre d aeroports tires = %s", 
+                i, 
+                nrow(aeroports[rbern(N, prob = Pi_k) == 1,])))
+}
+
+# ------------------------------
+# On fixe un echantillon S1 pour la suite
+# ------------------------------
+
 S1 <- aeroports[c("Bastia", "Ajaccio","Strasbourg","Figari","Pau","Tarbes"),]
 S1
 

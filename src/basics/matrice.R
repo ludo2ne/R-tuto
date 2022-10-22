@@ -1,3 +1,9 @@
+#**************************************************************************
+#* Introduction à la Théorie des Sondages avec R                          *
+#* Ludovic Deneuville                                                     *
+#* ENSAI 2023                                                             *
+#**************************************************************************
+
 rm(list=ls())
 
 setwd("P:/Ludo/Tuto/R-tuto")

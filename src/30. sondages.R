@@ -4,7 +4,6 @@
 #* ENSAI 2023                                                             *
 #**************************************************************************
 
-
 rm(list=ls())
 
 # install.packages("Rlab")
@@ -14,10 +13,10 @@ library(dplyr)
 setwd("P:/Ludo/Tuto/R-tuto")
 
 # Import de la base d aeroports
-aeroports <- read.csv(file = "data/aeroports.csv",
-                      row.names = 1, 
-                      header= TRUE,
-                      sep=";")
+aeroports <- read.csv2(file = "data/aeroports.csv",
+                       row.names = 1,                      # utiliser la colonne 1 comme rownames
+                       header= TRUE,
+                       sep=";")
 
 aeroports
 
@@ -123,14 +122,20 @@ n_1 <- n * (N_1 * sqrt(var(U_1$Pass19))) / (N_1 * sqrt(var(U_1$Pass19)) + N_2 * 
 n_2 <- n * (N_2 * sqrt(var(U_2$Pass19))) / (N_1 * sqrt(var(U_1$Pass19)) + N_2 * sqrt(var(U_2$Pass19)))
 
 c(n1=n_1, n2=n_2)
-round(c(n1=n_1, n2=n_2))
+pie(round(c(n1=n_1, n2=n_2)) , 
+    # labels = c("U1","U2"),
+    labels = paste0(c("U1","U2"), " : ", round(c(n_1, n_2))),
+    col = c("lightblue", "pink"))
 
 # Allocation optimale pour la variable Pop19
 n_1 <- n * (N_1 * sqrt(var(U_1$Pop19))) / (N_1 * sqrt(var(U_1$Pop19)) + N_2 * sqrt(var(U_2$Pop19)))
 n_2 <- n * (N_2 * sqrt(var(U_2$Pop19))) / (N_1 * sqrt(var(U_1$Pop19)) + N_2 * sqrt(var(U_2$Pop19)))
 
 c(n1=n_1, n2=n_2)
-round(c(n1=n_1, n2=n_2))
+pie(round(c(n1=n_1, n2=n_2)) , 
+    # labels = c("U1","U2"),
+    labels = paste0(c("U1","U2"), " : ", round(c(n_1, n_2))),
+    col = c("lightblue", "pink"))
 
 
 # ------------------------------

@@ -235,7 +235,7 @@ aeroports$Vk <- cumsum(aeroports$Pi_k)     # Somme cumulative
 aeroports$Vk_1 <- c(0, aeroports$Vk[-N])   # on recopie V_k dans V_k1 en commencant par 0 et ainsi en decalant de 1
 aeroports
 
-# Generation d une valeur entre 0 et 1
+# Generation d une valeur entre 0 et 1 avec une loi uniforme
 u <- runif(1, min=0, max=1)
 
 # Tirage

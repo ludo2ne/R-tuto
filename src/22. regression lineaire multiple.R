@@ -216,9 +216,21 @@ summary(reg7)$coefficients[4,4]
 F <- R2 / (1 - R2) * (n - p - 1 ) / p
 F
 
-# A comparer avec le quantile de la loi de Fisher
-qf(0.95, p, n-p-1)
+# A comparer avec le quantile de la loi de Fisher (Test unilaterral)
+qf(1-alpha, p, n-p-1)
 
+# Visualisation
+x1 <- seq(0, 10, by = 0.1)
+plot(x1, df(x1, df1 = p, df2 = n-p-1), type = "l", main = "Densité de la loi de Fisher")
+lines(c(0, 10), c(0, 0))
+
+zone_rejet_droite <- seq(qf(1-alpha, p, n-p-1), 6, 0.01)
+polygon(x = c(zone_rejet_droite[1], zone_rejet_droite, zone_rejet_droite[length(zone_rejet_droite)]), 
+        y = c(0, df(zone_rejet_droite, df1 = p, df2 = n-p-1), 0), 
+        col = "green")
+legend("topright", inset=.05, 
+       c("Zones de rejet"), 
+       fill=c("green"))
 
 # -----------------------------------------------------------------------------
 # Validation du modele

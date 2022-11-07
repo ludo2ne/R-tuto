@@ -38,10 +38,11 @@ reg7 <- lm(Y ~ X1 + X2 + X3, data = data7)
 # Summary de la regression
 #   Coefficients
 #     Estimate : valeur du coefficient
-#     Std. Error : variance du coefficient
+#     Std. Error : Ecart type du coefficient
 #     t value : Stat de Student (si tres elevee alors le coefficient est significativement different de 0)
 #     Pr(>t) : p-valeur (si tres faible alors le coefficient est significativement different de 0)
 #     *** : plus il y a d etoiles plus le coefficient est significativement different de 0
+#   Residual standard error : sigma_hat
 #   R2 : Multiple R-squared et Adjusted R-squared
 #   F-statistic : Valeur de la statistique du test global de Fisher
 summary(reg7)
@@ -96,6 +97,9 @@ SCR
 
 # Estimation de la variance de Epsilon (equation 2.6)
 sigma2_hat <- as.numeric(SCR/(n-p-1))
+
+sqrt(sigma2_hat)
+summary(reg7)["sigma"]
 
 # Matrice des covariances de Beta_hat
 cov_Beta_hat <- sigma2_hat * solve(t(X) %*% X)
@@ -331,6 +335,8 @@ rs7[abs(rs7) > qt(0.975, n-p-1)]
 # on trace les quantiles sur le graph des rs
 plot(rs7, main = "Résidus Studentisés")
 abline(h=c(qt(0.975, n-p-1), qt(0.025, n-p-1)), col="orange")
+legend("topleft", inset=.05, lty=c(1, 1), 
+       c("Quantiles Student"), col=c("orange"))
 
 
 #-------------------------------------
@@ -369,6 +375,8 @@ plot(cooks.distance(reg7), main = "Distance de Cook")
 # Si on veut visualiser le seuil
 plot(cooks.distance(reg7), ylim = c(0, 3), main = "Distance de Cook")
 abline(h = qf(0.95, p+1, n-p-1), col="orange")
+legend("topleft", inset=.05, lty=c(1, 1), 
+       c("Quantiles Fisher"), col=c("orange"))
 
 
 #-------------------------------------
@@ -477,7 +485,7 @@ summary(reg8)
 plot(data8$Y)
 
 # Forme de croissant
-plot(rstudent(reg8), reg8$fitted.values, main = "Non linearite - exemple")
+plot(reg8$fitted.values, rstudent(reg8), main = "Non linearite - exemple")
 
 
 #-------------------------------------
@@ -501,5 +509,5 @@ summary(reg9)
 plot(data9$Y)
 
 # Forme de trompette
-plot(rstudent(reg9), reg9$fitted.values, main = "Heteroscedasticite - exemple")
+plot(reg9$fitted.values, rstudent(reg9), main = "Heteroscedasticite - exemple")
 

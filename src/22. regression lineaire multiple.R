@@ -18,7 +18,7 @@ setwd("P:/Ludo/Tuto/R-tuto")
 fonction7 <- function(n) {
   X1 <- runif(n, min=0, max=1)
   X2 <- seq(1,n)
-  X3 <- X1^2
+  X3 <- X1^2 + 1
   E <- rnorm(n, mean=0, sd=1)
   Y <- 15 + 3*X1 + X2/10 + X3/2 + E
   return(data.frame(X1, X2, X3, Y))
@@ -49,13 +49,10 @@ summary(reg7)
 
 
 # Calcul des valeurs ajustees du modele (Y_hat)
-data7$Y_hat <- reg7$fitted.values
-# ou data7$Y_hat <- predict(reg7, subset(data7, select = -c(Y)))
+data7$Y_hat <- reg7$fitted.values               # ou data7$Y_hat <- predict(reg7, subset(data7, select = -c(Y)))
 
 # Calcul des residus (Y - Y_hat)
-data7$Epsilon_hat <- reg7$residuals
-# ou data7$Epsilon_hat <- resid(reg7)
-
+data7$Epsilon_hat <- reg7$residuals             # ou data7$Epsilon_hat <- resid(reg7)
 
 # Affichage des Y et Y_hat
 plot(data7$Y)
@@ -83,7 +80,7 @@ Beta_hat
 reg7$coefficients
 
 # residus
-Y_hat <- X%*%Beta_hat
+Y_hat <- X %*% Beta_hat
 Epsilon_hat <- Y - Y_hat
 
 # La somme des Epsilon_hat_i doit etre environs egale a 0
@@ -132,11 +129,21 @@ var_Beta_hat_1 <- cov_Beta_hat[2,2]
 q_student_Beta_hat_1 <- qt(alpha, df = n-p-1)
 
 # Intervalle de confiance de Beta_hat_1 au niveau 1 - alpha
-IC_Beta_hat_1 <- c(Beta_hat_1 + q_student_Beta_hat_1 * var_Beta_hat_1,
-                   Beta_hat_1 - q_student_Beta_hat_1 * var_Beta_hat_1)
+IC_Beta_hat_1 <- c(Beta_hat_1 + q_student_Beta_hat_1 * sqrt(var_Beta_hat_1),
+                   Beta_hat_1 - q_student_Beta_hat_1 * sqrt(var_Beta_hat_1))
 
 sort(IC_Beta_hat_1)
 
+#-------------------------------------
+# Intervalle de confiance 
+#   pour sigma2
+#-------------------------------------
+
+IC_sigma2 <- c((n-p-1) * sigma2_hat / qchisq(1 - alpha/2, n-p-1),
+               (n-p-1) * sigma2_hat / qchisq(alpha/2, n-p-1))
+IC_sigma2
+
+summary(reg7)
 
 #-------------------------------------
 # Test de significativite de Student 
@@ -144,7 +151,7 @@ sort(IC_Beta_hat_1)
 #-------------------------------------
 
 T <- Beta_hat / sqrt(diag(cov_Beta_hat))
-p_valeurs <- formatC(2*(1-pt(T, n-p-1)), format = "e", digits = 2) 
+p_valeurs <- formatC(2*(1-pt(abs(T), n-p-1)), format = "e", digits = 2) 
 data.frame(Beta_hat = Beta_hat, 
            Std = sqrt(diag(cov_Beta_hat)), 
            T=T, 
@@ -165,7 +172,7 @@ T_Beta_3 <- T[4]
 # Definition des borne et du nombre de points a tracer
 val1 <- seq(-5, 5, length.out = 1000)
 
-plot(x = val1, y = dt(val1,n-1),        # Calcul des valeurs de la fonction de densite
+plot(x = val1, y = dt(val1, n-p-1),      # Calcul des valeurs de la fonction de densite
      type = "l", lwd = 3, col = "blue", # Representation par une courbe bleue
      xlim = c(-5, 5), 
      main = "Densité de la statistique de test", 
@@ -176,32 +183,28 @@ plot(x = val1, y = dt(val1,n-1),        # Calcul des valeurs de la fonction de d
 lines(c(-5, 5), c(0, 0)) # Trace de la ligne inferieure
 
 # Determination de la zone de rejet (attention, il y en a deux, car test bilatéral)
-zone_rejet_gauche <- seq(-5, qt(alpha/2, n-1), 0.01)
-zone_rejet_droite <- seq(qt(1-alpha/2, n-1), 5, 0.01)
+zone_rejet_gauche <- seq(-5, qt(alpha/2, n-p-1), 0.01)
+zone_rejet_droite <- seq(qt(1-alpha/2, n-p-1), 5, 0.01)
 
 # Trace du polygone de la region de rejet
 polygon(x = c(zone_rejet_gauche[1], zone_rejet_gauche, zone_rejet_gauche[length(zone_rejet_gauche)]), 
-        y = c(0, dt(zone_rejet_gauche, n-1), 0), 
+        y = c(0, dt(zone_rejet_gauche, n-p-1), 0), 
         col = "green")
 polygon(x = c(zone_rejet_droite[1], zone_rejet_droite, zone_rejet_droite[length(zone_rejet_droite)]), 
-        y = c(0, dt(zone_rejet_droite, n-1), 0), 
+        y = c(0, dt(zone_rejet_droite, n-p-1), 0), 
         col = "green")
 legend("topright", inset=.05, 
        c("Zones de rejet"), 
        fill=c("green"))
 
 # Affichage de T_Beta_3 observe
-lines(c(T_Beta_3,T_Beta_3),c(0,dt(T_Beta_3,n-1)),lwd = 3, col="red")
+lines(c(T_Beta_3,T_Beta_3),c(0,dt(T_Beta_3, n-p-1)),lwd = 3, col="red")
 legend("topleft", inset=.05, lty=c(1, 1), 
        c("T_Beta_3"), text.col = "red", 
        col=c("red"))
 
 # p-value de Beta_3
-if (T_Beta_3 < 0){
-  p_value_T_Beta_3 <- 2*pt(T_Beta_3, df = n-p-1)
-}else{
-  p_value_T_Beta_3 <- 2*(1-pt(T_Beta_3, df = n-p-1))
-}
+p_value_T_Beta_3 <- 2*(1-pt(abs(T_Beta_3), df = n-p-1))
 
 # on retrouve celle donnee par le modele
 p_value_T_Beta_3
@@ -235,6 +238,7 @@ polygon(x = c(zone_rejet_droite[1], zone_rejet_droite, zone_rejet_droite[length(
 legend("topright", inset=.05, 
        c("Zones de rejet"), 
        fill=c("green"))
+
 
 # -----------------------------------------------------------------------------
 # Validation du modele
@@ -335,7 +339,7 @@ rs7[abs(rs7) > qt(0.975, n-p-1)]
 # on trace les quantiles sur le graph des rs
 plot(rs7, main = "Résidus Studentisés")
 abline(h=c(qt(0.975, n-p-1), qt(0.025, n-p-1)), col="orange")
-legend("topleft", inset=.05, lty=c(1, 1), 
+legend("left", inset=.05, lty=c(1, 1), 
        c("Quantiles Student"), col=c("orange"))
 
 
@@ -511,3 +515,39 @@ plot(data9$Y)
 # Forme de trompette
 plot(reg9$fitted.values, rstudent(reg9), main = "Heteroscedasticite - exemple")
 
+
+# -----------------------------------------------------------------------------
+# Prediction
+# -----------------------------------------------------------------------------
+
+u <- c(1, 0.5, 10, 1)
+u_df <- data.frame(cst=u[1], X1=u[2], X2=u[3], X3=u[4])
+
+# IC de l estimation
+#   n integre que l erreur due a l estimation de Beta_hat
+predict(reg7, u_df, interval = "confidence")
+
+c(t(u) %*% Beta_hat - qt(1-alpha/2, n-p-1) * sqrt(sigma2_hat) * sqrt(t(u) %*% solve(t(X) %*% X) %*% u),
+  t(u) %*% Beta_hat + qt(1-alpha/2, n-p-1) * sqrt(sigma2_hat) * sqrt(t(u) %*% solve(t(X) %*% X) %*% u))
+
+# IC de prediction
+#   integre l erreur due a l estimation de Beta_hat
+#   plus celle due au terme d erreur nu de la prediction
+predict(reg7, u_df, interval = "prediction")
+
+c(t(u) %*% Beta_hat - qt(1-alpha/2, n-p-1) * sqrt(sigma2_hat) * sqrt(t(u) %*% solve(t(X) %*% X) %*% u + 1),
+  t(u) %*% Beta_hat + qt(1-alpha/2, n-p-1) * sqrt(sigma2_hat) * sqrt(t(u) %*% solve(t(X) %*% X) %*% u + 1))
+
+# A prediction interval reflects the uncertainty around a single value, 
+# while a confidence interval reflects the uncertainty around the mean prediction values. 
+# Thus, a prediction interval will be generally much wider than a confidence interval for the same value.
+
+
+# Visualisation sur le modele de regression lineaire simple Y ~ X2
+predictions <- predict(reg7_X2, interval = "prediction")
+my_data <- cbind(data7, predictions)
+ggplot(my_data, aes(X2, Y)) +
+  geom_point() +
+  stat_smooth(method = lm) + 
+  geom_line(aes(y = lwr), color = "red", linetype = "dashed") +
+  geom_line(aes(y = upr), color = "red", linetype = "dashed")

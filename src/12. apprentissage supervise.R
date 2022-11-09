@@ -1,8 +1,30 @@
 #**************************************************************************
-#* Apprentissage supervisÃ© avec R                                         *
+#* Apprentissage supervisé avec R                                         *
 #* Ludovic Deneuville                                                     *
 #* ENSAI 2023                                                             *
 #**************************************************************************
+
+rm(list = ls())
+
+# -----------------------------------------------------------------------------
+# Bonus
+# -----------------------------------------------------------------------------
+
+notes_2022 <- c(4.5, 5, 6, 7, 7, rep(7.5,5), rep(8,3), 8.5, rep(9,4), rep(9.5,2))
+notes_2022 <- c(notes_2022, rep(10,7), rep(10.5,6), rep(11,8), rep(11.5, 9), rep(12,7), rep(12.5,10))
+notes_2022 <- c(notes_2022, rep(13,14), rep(13.5,16), rep(14,12), rep(14.5, 8), rep(15,12), rep(15.5,9))
+notes_2022 <- c(notes_2022, rep(16,8), rep(16.5,8), rep(17,8), rep(17.5,5), rep(18,4), 18.5)
+
+moyenne_notes_2022 <- mean(notes_2022)
+
+hist(notes_2022, 
+        main="Distribution 2022 des notes d'apprentissage supervisé",
+        xlab="Notes 2022",
+        xlim=c(0,20),
+        col="lightblue", 
+        breaks = length(table(notes_2022)))
+abline(v=moyenne_notes_2022, col="red")
+
 
 # -----------------------------------------------------------------------------
 # TODO

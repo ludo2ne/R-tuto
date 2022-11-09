@@ -123,6 +123,8 @@ R2a
 alpha <- 0.05
 Beta_hat_1 <- Beta_hat[2]
 
+# On recupere la variance estimee de Beta_hat_1 dans la matrice des covariances de Beta_hat
+cov_Beta_hat
 var_Beta_hat_1 <- cov_Beta_hat[2,2]
 
 # Quantile de la loi de Student a n-p-1 degres de liberte au niveau alpha 
@@ -139,11 +141,13 @@ sort(IC_Beta_hat_1)
 #   pour sigma2
 #-------------------------------------
 
+# sigma2_hat
+as.numeric(summary(reg7)["sigma"])^2
+
 IC_sigma2 <- c((n-p-1) * sigma2_hat / qchisq(1 - alpha/2, n-p-1),
                (n-p-1) * sigma2_hat / qchisq(alpha/2, n-p-1))
 IC_sigma2
 
-summary(reg7)
 
 #-------------------------------------
 # Test de significativite de Student 
@@ -236,8 +240,8 @@ polygon(x = c(zone_rejet_droite[1], zone_rejet_droite, zone_rejet_droite[length(
         y = c(0, df(zone_rejet_droite, df1 = p, df2 = n-p-1), 0), 
         col = "green")
 legend("topright", inset=.05, 
-       c("Zones de rejet"), 
-       fill=c("green"))
+       c("Zones de rejet", paste("Valeur de F : ", round(F))), 
+       fill=c("green","white"))
 
 
 # -----------------------------------------------------------------------------
@@ -380,7 +384,7 @@ plot(cooks.distance(reg7), main = "Distance de Cook")
 plot(cooks.distance(reg7), ylim = c(0, 3), main = "Distance de Cook")
 abline(h = qf(0.95, p+1, n-p-1), col="orange")
 legend("topleft", inset=.05, lty=c(1, 1), 
-       c("Quantiles Fisher"), col=c("orange"))
+       c("Quantile Fisher"), col=c("orange"))
 
 
 #-------------------------------------

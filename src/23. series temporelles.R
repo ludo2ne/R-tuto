@@ -6,7 +6,19 @@
 
 rm(list = ls())
 
-require(lubridate)
+# require(lubridate)
+
+
+# -----------------------------------------------------------------------------
+# Jeux de donnees integres a R
+# -----------------------------------------------------------------------------
+
+data()                                             # Jeux de donnees de R base
+data(package = .packages(all.available = TRUE))    # Jeux de donnees de tous les packages installes
+
+data(nottem)
+data(AirPassengers)
+
 
 # -----------------------------------------------------------------------------
 # Generer une serie temporelle de type Time-Series
@@ -22,8 +34,35 @@ Z_t <- rnorm(n, 0, 10)                   # bruit
 
 X_t <- ts(m_t + s_t + Z_t, start= c(2010,01,01), end=c(2019,12,01), frequency = p)
 X_t
+str(X_t)
 
 plot(X_t)
+
+start(X_t)
+end(X_t)
+time(X_t)
+frequency(X_t)
+
+
+# -----------------------------------------------------------------------------
+# Quelques verifications sur la serie temporelle
+# -----------------------------------------------------------------------------
+
+# Verification que le bruit est centre
+mean(Z_t)
+
+# Visualisation du bruit
+plot(Z_t, type ="l")
+
+# On verifie que la saisonnalite est de moyenne nulle sur une periode p
+total_saisonnalite <- 0
+for (i in seq(1, floor((n-p)/p) * p)) {
+  total_saisonnalite <- total_saisonnalite + sum(s_t[i:i+p])
+}
+mean(total_saisonnalite)
+
+# Visualisation de la saisonnalite
+plot(s_t, type ="l")
 
 
 # -----------------------------------------------------------------------------
@@ -46,13 +85,36 @@ lag(a, -3)
 a + lag(a, -3)
 
 
+# -----------------------------------------------------------------------------
+# Filtre de differenciation
+#   transforme les tendances polynomiales en constantes
+# -----------------------------------------------------------------------------
+
+plot(X_t)
+plot(diff(X_t, differences = 2))
+
+# Soit un polynome de degre 4
+p4 <- 10 + 1/2 * t - 1/10 * t^2 + 1/500 * t^3 - 1/2000 * t^4 
+p4
+
+# On va appliquer un filtre de differenciation d ordre p Delta_p avec p allant de 1 a 4
+plot(diff(p4, differences = 1), pch=3)
+plot(diff(p4, differences = 2), pch=3)
+plot(diff(p4, differences = 3), pch=3)
+plot(diff(p4, differences = 4), pch=3, ylim = c(-3, 3))    # constante
+
+
+# -----------------------------------------------------------------------------
+# Filtre moyenne mobile
+# -----------------------------------------------------------------------------
+
 # Filtre moyenne mobile arithmetique paire d ordre 12
-#   absorbe les saisonalites de periode 12
+#   absorbe les saisonalites de periode 12 (paire)
 t1 <- (1/12) * filter(X_t, c(0.5, rep(1,times=11), 0.5))
 plot(t1, main = "Tendance polynomiale")
 
 # Filtre moyenne mobile arithmetique impaire d ordre 3
-#   absorbe les saisonalites de periode 3
+#   absorbe les saisonalites de periode 3 (impaire)
 s1 <- ((1/3)*filter(X_t - t1,rep(1,times=3)))
 plot(s1, main = "Tendance saisonnière")
 
@@ -60,6 +122,12 @@ plot(s1, main = "Tendance saisonnière")
 plot(X_t - t1 - s1, main = "Bruit")
 
 plot(X_t - lag(X_t, 12))
+
+s_t_hat <- X_t - m_t_hat
+plot(s_t_hat)
+
+# Filtre de differenciation saisonniere d ordre p=12
+plot(diff(s_t, lag = 12), pch = 3, ylim = c (-3, 3))
 
 
 # -----------------------------------------------------------------------------
@@ -88,44 +156,92 @@ legend("topright", inset=.05, lty=c(1, 1), c("Estimé par la fonction decompose")
 
 
 # -----------------------------------------------------------------------------
-# Autocorrelogramme
+# Fonction d autocorrelation et Autocorrelogramme
 # -----------------------------------------------------------------------------
+
+# Voir chap2 p3
 
 # acf d un bruit blanc
 acf(ts_components$random, na.action = na.pass)
 
 
+# -----------------------------------------------------------------------------
+# Generer des series temporelles
+#   avec la fonction arima.sim
+# -----------------------------------------------------------------------------
+
+bruit_blanc <- arima.sim(n = 1000, model = list())
+ts.plot(bruit_blanc, main = "Bruit blanc")
+
+ma_1 <- 3 + arima.sim(n = 1000, model = list(ma = c(2)), sd = 2)
+ts.plot(ma_1, main = "Processus MA(1)")
+
+ar_2 <- arima.sim(model = list(ar = c(0.2, -0.5)), n = 1000)
+ts.plot(ar_2, main = "Processus AR(2)")
+
+arma_4_2 <- arima.sim(model = list(ar = c(0.6, -0.2, 0.3, -0.5), ma = c(0.4, 0.2)), n = 1000)
+plot(arma_4_2, main = "Processus ARMA(4,2)")
+
+
+# install.packages("astsa")
+library(astsa)
+
+#SARIMA(0,1,1)x(0,1,1)_12
+sarima_011_011_12 <- sarima.sim(d=1, ma=-.4, D=1, sma=-.6, S=12, n=120)
+ts.plot(sarima_011_011_12)
+
+# -----------------------------------------------------------------------------
+# Modeliser avec un processus AR
+#   AR(1) = ARIMA(1, 0, 0)
+# -----------------------------------------------------------------------------
+
+AR_1 <- arima(X_t, order = c(1,0,0))
+AR_1
+AR_1_fit <- X_t - residuals(AR_1)
+
+ts.plot(X_t, main = "Modelisation avec une processsus AR(1)")
+points(AR_1_fit, type = "l", col = 2, lty = 2)
+legend("topright", inset=.05, lty=2, c("fitted values"), col = c("red"))
+
 
 
 # -----------------------------------------------------------------------------
-# function fit
+# Modeliser avec un processus MA
+#   MA(1) = ARIMA(0, 0, 1)
 # -----------------------------------------------------------------------------
 
+MA_1 <- arima(X_t, order = c(0,0,1))
+MA_1
+MA_1_fit <- X_t - residuals(MA_1)
+
+ts.plot(X_t, main = "Modelisation avec une processsus MA(1)")
+points(MA_1_fit, type = "l", col = 2, lty = 2)
+legend("topright", inset=.05, lty=2, c("fitted values"), col = c("red"))
+
+
+# -----------------------------------------------------------------------------
+# Processus des innovations
+# -----------------------------------------------------------------------------
+
+# chap2 p4
+epsilon_t <- X_t - "prediction a partir du passé"
+
+
+# TODO proprement
+
+fit <- arima(X_t[1:(n-1)], order=c(0,0,2))    # order pour un MA(2)
+fit
+acf(X_t)
+pacf(X_t)
+predictions <- predict(fit, n.ahead = 1)
+
+
+# -----------------------------------------------------------------------------
+# function stl
+# -----------------------------------------------------------------------------
 
 fit <- stl(X_t, s.window="period")
 plot(fit)
-
-
-# -----------------------------------------------------------------------------
-# Quelques verifications sur la serie temporelle
-# -----------------------------------------------------------------------------
-
-# Verification que le bruit est centre
-mean(Z_t)
-
-# Visualisation du bruit
-plot(Z_t, type ="l")
-
-# On verifie que la saisonnalite est de moyenne nulle sur une periode p
-total_saisonnalite <- 0
-for (i in seq(1, floor((n-p)/p) * p)) {
-  total_saisonnalite <- total_saisonnalite + sum(s_t[i:i+p])
-}
-mean(total_saisonnalite)
-
-# Visualisation de la saisonnalite
-plot(s_t, type ="l")
-
 
 
 # -----------------------------------------------------------------------------
@@ -147,6 +263,7 @@ plot(s_t, type ="l")
 
 
 # -----------------------------------------------------------------------------
+# Ex 9
 # Processus MA(1)
 #   Moyenne mobile d ordre 1
 # -----------------------------------------------------------------------------
@@ -193,6 +310,7 @@ pacf(ma_1 + ma_2)
 
 
 # -----------------------------------------------------------------------------
+# Ex 10
 # Processus AR(1)
 #   Autoregressif d ordre 1
 # -----------------------------------------------------------------------------
@@ -214,6 +332,7 @@ generate_ar1 <- function(n, mu, phi, sigma2){
   return (ar_1)
 }
 
+n <- 1000
 ar_1 <- generate_ar1(n, 1, 0.45, 0.5)
 
 plot(ar_1, col="blue")
@@ -261,3 +380,30 @@ predictions
 plot(predictions$pred)
 
 plot(c(X_t[1:200], predictions$pred), type = "l")
+
+
+# -----------------------------------------------------------------------------
+
+
+
+
+arma.res
+arma.res <- rep(0, 16)
+arma.res[1] <- arima(arma_2_1, order = c(3, 0, 2))$aic  # fit arma(3,2) and save aic value
+arma.res[2] <- arima(arma_2_1, order = c(2, 0, 2))$aic
+arma.res[3] <- arima(arma_2_1, order = c(2, 0, 1))$aic
+arma.res[4] <- arima(arma_2_1, order = c(1, 0, 2))$aic
+arma.res[5] <- arima(arma_2_1, order = c(1, 0, 1))$aic
+arma.res[6] <- arima(arma_2_1, order = c(3, 0, 0))$aic
+arma.res[7] <- arima(arma_2_1, order = c(2, 0, 0))$aic
+arma.res[8] <- arima(arma_2_1, order = c(0, 0, 2))$aic
+arma.res[9] <- arima(arma_2_1, order = c(3, 0, 2), include.mean = FALSE)$aic
+arma.res[10] <- arima(arma_2_1, order = c(2, 0, 2), include.mean = FALSE)$aic
+arma.res[11] <- arima(arma_2_1, order = c(2, 0, 1), include.mean = FALSE)$aic
+arma.res[12] <- arima(arma_2_1, order = c(1, 0, 2), include.mean = FALSE)$aic
+arma.res[13] <- arima(arma_2_1, order = c(1, 0, 1), include.mean = FALSE)$aic
+arma.res[14] <- arima(arma_2_1, order = c(3, 0, 0), include.mean = FALSE)$aic
+arma.res[15] <- arima(arma_2_1, order = c(2, 0, 0), include.mean = FALSE)$aic
+arma.res[16] <- arima(arma_2_1, order = c(0, 0, 2), include.mean = FALSE)$aic
+which(arma.res == min(arma.res))
+

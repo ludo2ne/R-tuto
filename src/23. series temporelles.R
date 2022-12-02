@@ -10,18 +10,18 @@ rm(list = ls())
 
 
 # -----------------------------------------------------------------------------
-# Jeux de donnees integres a R
+# Jeux de données integrés a R
 # -----------------------------------------------------------------------------
 
-data()                                             # Jeux de donnees de R base
-data(package = .packages(all.available = TRUE))    # Jeux de donnees de tous les packages installes
+# data()                                             # Jeux de donnees de R base
+# data(package = .packages(all.available = TRUE))    # Jeux de donnees de tous les packages installes
 
 data(nottem)
 data(AirPassengers)
 
 
 # -----------------------------------------------------------------------------
-# Generer une serie temporelle de type Time-Series
+# Générer une série temporelle de type Time-séries
 # -----------------------------------------------------------------------------
 
 n <- 120               # Nombre d observations
@@ -32,7 +32,7 @@ m_t <- 400 - 0.5 * t - 1/ (2*n) * t^2    # tendance polynomiale deterministe
 s_t <- 20 * sin(2 * pi * t / p)          # tendance saisonniere p-periodique
 Z_t <- rnorm(n, 0, 10)                   # bruit
 
-X_t <- ts(m_t + s_t + Z_t, start= c(2010,01,01), end=c(2019,12,01), frequency = p)
+X_t <- ts(m_t + s_t + Z_t, start= c(2010,01), end=c(2019,12), frequency = p)
 X_t
 str(X_t)
 
@@ -43,36 +43,39 @@ end(X_t)
 time(X_t)
 frequency(X_t)
 
+# Extraire une fenêtre de la série
+window(X_t, start= c(2012,01), end=c(2014,12))
+
 
 # -----------------------------------------------------------------------------
-# Quelques verifications sur la serie temporelle
+# Quelques vérifications sur la série temporelle
 # -----------------------------------------------------------------------------
 
-# Verification que le bruit est centre
+# Vérification que le bruit est centré
 mean(Z_t)
 
 # Visualisation du bruit
 plot(Z_t, type ="l")
 
-# On verifie que la saisonnalite est de moyenne nulle sur une periode p
+# On verifie que la saisonnalité est de moyenne nulle sur une période p
 total_saisonnalite <- 0
 for (i in seq(1, floor((n-p)/p) * p)) {
   total_saisonnalite <- total_saisonnalite + sum(s_t[i:i+p])
 }
 mean(total_saisonnalite)
 
-# Visualisation de la saisonnalite
+# Visualisation de la saisonnalité
 plot(s_t, type ="l")
 
 
 # -----------------------------------------------------------------------------
-# Operateurs
+# Opérateurs
 # -----------------------------------------------------------------------------
 
-# Operateur Backward
+# Opérateur Backward
 lag(X_t, 3)
 
-# Operateur Forward
+# Opérateur Forward
 lag(X_t, -2)
 
 
@@ -86,18 +89,18 @@ a + lag(a, -3)
 
 
 # -----------------------------------------------------------------------------
-# Filtre de differenciation
+# Filtre de différenciation
 #   transforme les tendances polynomiales en constantes
 # -----------------------------------------------------------------------------
 
 plot(X_t)
 plot(diff(X_t, differences = 2))
 
-# Soit un polynome de degre 4
+# Soit un polynome de degré 4
 p4 <- 10 + 1/2 * t - 1/10 * t^2 + 1/500 * t^3 - 1/2000 * t^4 
 p4
 
-# On va appliquer un filtre de differenciation d ordre p Delta_p avec p allant de 1 a 4
+# On va appliquer un filtre de différenciation d'ordre p Delta_p avec p allant de 1 a 4
 plot(diff(p4, differences = 1), pch=3)
 plot(diff(p4, differences = 2), pch=3)
 plot(diff(p4, differences = 3), pch=3)
@@ -108,13 +111,13 @@ plot(diff(p4, differences = 4), pch=3, ylim = c(-3, 3))    # constante
 # Filtre moyenne mobile
 # -----------------------------------------------------------------------------
 
-# Filtre moyenne mobile arithmetique paire d ordre 12
-#   absorbe les saisonalites de periode 12 (paire)
+# Filtre moyenne mobile arithmétique paire d'ordre 12
+#   absorbe les saisonnalités de période 12 (paire)
 t1 <- (1/12) * filter(X_t, c(0.5, rep(1,times=11), 0.5))
 plot(t1, main = "Tendance polynomiale")
 
 # Filtre moyenne mobile arithmetique impaire d ordre 3
-#   absorbe les saisonalites de periode 3 (impaire)
+#   absorbe les saisonnalités de période 3 (impaire)
 s1 <- ((1/3)*filter(X_t - t1,rep(1,times=3)))
 plot(s1, main = "Tendance saisonnière")
 
@@ -126,12 +129,12 @@ plot(X_t - lag(X_t, 12))
 s_t_hat <- X_t - m_t_hat
 plot(s_t_hat)
 
-# Filtre de differenciation saisonniere d ordre p=12
+# Filtre de différenciation saisonnière d'ordre p=12
 plot(diff(s_t, lag = 12), pch = 3, ylim = c (-3, 3))
 
 
 # -----------------------------------------------------------------------------
-# Decomposition de la serie temporelle
+# Décomposition de la série temporelle
 # -----------------------------------------------------------------------------
 
 ts_components <- decompose(X_t)
@@ -144,7 +147,7 @@ lines(ts_components$trend, col="green")
 legend("topright", inset=.05, lty=c(1, 1), c("Estimé par la fonction decompose"), col = c("green"))
 
 
-# Tendance saisonniere 
+# Tendance saisonnière 
 plot(ts(s_t, start = c(2010,01,01), end = c(2019,12,01), frequency = p), main = "Tendance saisonnière")
 lines(ts_components$seasonal, col="red")
 legend("topright", inset=.05, lty=c(1, 1), c("Estimé par la fonction decompose"), col = c("red"))
@@ -156,17 +159,17 @@ legend("topright", inset=.05, lty=c(1, 1), c("Estimé par la fonction decompose")
 
 
 # -----------------------------------------------------------------------------
-# Fonction d autocorrelation et Autocorrelogramme
+# Fonction d'autocorrelation et Autocorrelogramme
 # -----------------------------------------------------------------------------
 
 # Voir chap2 p3
 
-# acf d un bruit blanc
+# acf d'un bruit blanc
 acf(ts_components$random, na.action = na.pass)
 
 
 # -----------------------------------------------------------------------------
-# Generer des series temporelles
+# Génerer des séries temporelles
 #   avec la fonction arima.sim
 # -----------------------------------------------------------------------------
 
@@ -191,7 +194,7 @@ sarima_011_011_12 <- sarima.sim(d=1, ma=-.4, D=1, sma=-.6, S=12, n=120)
 ts.plot(sarima_011_011_12)
 
 # -----------------------------------------------------------------------------
-# Modeliser avec un processus AR
+# Modéliser avec un processus AR
 #   AR(1) = ARIMA(1, 0, 0)
 # -----------------------------------------------------------------------------
 
@@ -206,7 +209,7 @@ legend("topright", inset=.05, lty=2, c("fitted values"), col = c("red"))
 
 
 # -----------------------------------------------------------------------------
-# Modeliser avec un processus MA
+# Modéliser avec un processus MA
 #   MA(1) = ARIMA(0, 0, 1)
 # -----------------------------------------------------------------------------
 
@@ -368,7 +371,7 @@ X_t <- ts(3 + epsilon + 1/2 * lag(epsilon, 1) - 1/3 * lag(epsilon, 2))
 X_t
 plot(X_t)
 
-# Modeliser la serie avec la methode ARIMA
+# Modeliser la série avec la methode ARIMA
 fit <- arima(X_t[1:200], order=c(0,0,2))    # order pour un MA(2)
 fit
 
@@ -386,8 +389,6 @@ plot(c(X_t[1:200], predictions$pred), type = "l")
 
 
 
-
-arma.res
 arma.res <- rep(0, 16)
 arma.res[1] <- arima(arma_2_1, order = c(3, 0, 2))$aic  # fit arma(3,2) and save aic value
 arma.res[2] <- arima(arma_2_1, order = c(2, 0, 2))$aic

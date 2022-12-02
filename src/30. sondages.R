@@ -217,40 +217,89 @@ abline(h=1 , col="grey")
 
 # ---------------------------------------------------------------------
 # Tirage de Poisson
+#   pour chaque unité k de la population on génère u_k ~ U[0,1]
+#   si u_k < Pi_k alors l'unité est retenue dans l'échantillon
 # ---------------------------------------------------------------------
 
-# TODO
+# On remet les probabilités d'inclusion proportionnelles a Pass19
+aeroports$Pi_k <- round(n * aeroports$Pass19 / sum(aeroports$Pass19), 2)
+
+aeroports$u_k <- runif(N, min=0, max=1)
+aeroports
+
+# Tirage
+aeroports[aeroports$u_k <= aeroports$Pi_k,]
+
+# ------------------------------
+# Exo p91
+# ------------------------------
+
+aeroports$u_k <- c(0.46, 0.75, 0.58, 0.71, 0.79, 0.14, 0.93, 0.36, 0.40, 0.51, 0.41, 0.40)
+echantillon <- aeroports[aeroports$u_k <= aeroports$Pi_k,]
+echantillon
+
+# Estimation du total de Pass20 et Trans20
+t_hat_Pass20 <- sum(echantillon$Pass20 / echantillon$Pi_k)
+t_hat_Pass20
+
+t_hat_Trans20 <- sum(echantillon$Trans20 / echantillon$Pi_k)
+t_hat_Trans20
+
+# Estimation de la variance
+V_hat_HT_Pass20 <- sum((echantillon$Pass20 / echantillon$Pi_k)^2 * (1 - echantillon$Pi_k))
+V_hat_HT_Trans20 <- sum((echantillon$Trans20 / echantillon$Pi_k)^2 * (1 - echantillon$Pi_k))
+
+# Estimation du Coefficient de variation
+sprintf("%0.1f%%", sqrt(V_hat_HT_Pass20) / t_hat_Pass20 * 100)
+sprintf("%0.1f%%", sqrt(V_hat_HT_Trans20) / t_hat_Trans20 * 100)
 
 
 # ---------------------------------------------------------------------
 # Tirage systematique
 # ---------------------------------------------------------------------
 
-# On remet les probabilites d inclusion proportionnelles a Pass19
-aeroports$Pi_k <- round(n * aeroports$Pass19 / sum(aeroports$Pass19), 2)
-
+# on retire la colonne u_k dont on n'a plus besoin
+aeroports <- subset(aeroports, select = -c(u_k))
 
 # Determination des intervalles
-aeroports$Vk <- cumsum(aeroports$Pi_k)     # Somme cumulative
-aeroports$Vk_1 <- c(0, aeroports$Vk[-N])   # on recopie V_k dans V_k1 en commencant par 0 et ainsi en decalant de 1
+V_k <- cumsum(aeroports$Pi_k)     # Somme cumulative
+aeroports$V_k_1 <- c(0, V_k[-N])   # on recopie V_k dans V_k1 en commencant par 0 et ainsi en decalant de 1
+aeroports$V_k <- V_k
 aeroports
 
 # Generation d une valeur entre 0 et 1 avec une loi uniforme
 u <- runif(1, min=0, max=1)
 
 # Tirage
-aeroports[aeroports$Vk_1 - floor(aeroports$Vk) <= u & u < aeroports$Vk - floor(aeroports$Vk),]
+#   à vérifier car formule un peu bancale
+aeroports[u >= aeroports$V_k_1 - floor(aeroports$V_k) & u < aeroports$V_k - floor(aeroports$V_k) | u >= aeroports$V_k_1 - floor(aeroports$V_k_1) & u < aeroports$V_k - floor(aeroports$V_k_1),]
 
-# Autre tirage
+
+# ------------------------------
+# Exo p91
+# ------------------------------
+
+aeroports
+
 u <- 0.11
-aeroports[aeroports$Vk_1 - floor(aeroports$Vk) <= u & u < aeroports$Vk - floor(aeroports$Vk),]
+echantillon <- aeroports[u >= aeroports$V_k_1 - floor(aeroports$V_k) & u < aeroports$V_k - floor(aeroports$V_k) | u >= aeroports$V_k_1 - floor(aeroports$V_k_1) & u < aeroports$V_k - floor(aeroports$V_k_1),]
+echantillon
 
+# Estimation du total de Pass20 et Trans20
+t_hat_Pass20 <- sum(echantillon$Pass20 / echantillon$Pi_k)
+t_hat_Pass20
 
+t_hat_Trans20 <- sum(echantillon$Trans20 / echantillon$Pi_k)
+t_hat_Trans20
 
-# TODO ex p91
 
 # ---------------------------------------------------------------------
-# Echantillonage par grappes
+# Approche assistée par un modèle
 # ---------------------------------------------------------------------
 
+# Régression liénaire de Pass20 sur Pass19
+reg1 <- lm(Pass20 ~ Pass19, data = aeroports)
+summary(reg1)
 
+plot(aeroports$Pass19, aeroports$Pass20, xlim = c(0,2000000), ylim = c(-100000, 800000))
+abline(reg1)

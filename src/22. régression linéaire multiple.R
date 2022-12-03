@@ -177,7 +177,7 @@ T_Beta_3 <- T[4]
 val1 <- seq(-5, 5, length.out = 1000)
 
 plot(x = val1, y = dt(val1, n-p-1),      # Calcul des valeurs de la fonction de densite
-     type = "l", lwd = 3, col = "blue", # Representation par une courbe bleue
+     type = "l", lwd = 3, col = "blue",  # Representation par une courbe bleue
      xlim = c(-5, 5), 
      main = "Densité de la statistique de test", 
      xlab = "Réalisation", ylab = bquote(paste("Densité sous ", H[0])), 

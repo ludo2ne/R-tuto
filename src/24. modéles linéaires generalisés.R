@@ -43,7 +43,7 @@ rownames(toy) <- seq(1,n)
 plot(toy$X, toy$Y, pch=3, col="blue", main = "Données toy")
 
 # Tentative de régression linéaire... ça ne marche pas bien
-abline(lm(Y ~ X), col="red")
+abline(lm(toy$Y ~ toy$X), col="red")
 
 # Modèle de regression logistique (fonction de lien : logit par défaut)
 logit_model <- glm(formula = Y ~ X, data = toy, family = binomial)
@@ -56,7 +56,7 @@ toy$Y_hat <- fitted(logit_model)
 alpha_hat <- logit_model$coefficients[1]
 beta_hat <- logit_model$coefficients[2]
 Y_hat <- invlogit(alpha_hat + beta_hat * toy$X)
-data.frame(toy$Y_hat, Y_hat)
+data.frame(toy$Y_hat, a_la_main = Y_hat)
 
 
 # ----------------------------------------------------------------------
@@ -221,9 +221,12 @@ legend("bottomright", inset = .05, lty = c(1, 1, 1),
 
 
 
+
 ###############################################################################
 # Données groupées : beetle
 ###############################################################################
+
+rm(list = setdiff(ls(), lsf.str()))
 
 # install.packages("dobson")
 library(dobson)
@@ -269,6 +272,9 @@ logit_model$null.deviance - logit_model$deviance > qchisq(0.95, df = d - 1)
 # Dose létale a 50 pourcent
 # -----------------------------------------------------------------------------
 
+Beta_0 <- coefficients(logit_model)[1]
+Beta_1 <- coefficients(logit_model)[2]
+
 LD50 <- -Beta_0 / Beta_1
 LD50
 
@@ -288,8 +294,12 @@ vcov(logit_model)
 
 alpha <- 0.05
 
-# On demande a predict de renvoyer les valeurs non inversees et se.fit (Standard Error)
-preds <- predict(logit_model, newdata = list(beetle$x), type = "link", se.fit = TRUE)
+beetle
+beetle$x
+list(beetle$x)
+
+# On demande a predict de renvoyer les valeurs non inversées et se.fit (Standard Error)
+preds <- predict(logit_model, newdata = list(x=beetle$x), type = "link", se.fit = TRUE)
 
 IC_upr <- preds$fit + (qnorm(1-alpha/2) * preds$se.fit)
 IC_lwr <- preds$fit - (qnorm(1-alpha/2) * preds$se.fit)
@@ -301,15 +311,12 @@ beetle$IC_sup <- logit_model$family$linkinv(IC_upr)
 beetle
 
 # Visualisation des intervalles de confiance
+library(ggplot2)
 ggplot(data=beetle, mapping=aes(x=x,y=Pi)) + geom_point() +         
   stat_smooth(method="glm", method.args=list(family=binomial)) + 
   geom_line(data=beetle, mapping=aes(x=x, y=IC_inf), col="red") + 
   geom_line(data=beetle, mapping=aes(x=x, y=IC_sup), col="red") 
 
-
-# -----------------------------------------------------------------------------
-# Odds ratio
-# -----------------------------------------------------------------------------
 
 
 
@@ -318,8 +325,7 @@ ggplot(data=beetle, mapping=aes(x=x,y=Pi)) + geom_point() +
 # Y catégorielle avec notion d'ordre
 ###############################################################################
 
-
-rm(list=ls())
+rm(list = setdiff(ls(), lsf.str()))
 
 # install.packages("VGAM")
 library(VGAM)
@@ -336,7 +342,6 @@ str(mental)
 #   ses    : qui vaut 1 si la personne a un statut socio-économique élevé, 0 sinon
 #   life   : mesurant le nombre et l'intensité des bouleversements qu'a connus la personne au cours 
 #            des trois dernières années, de 0 (aucun changement) à 9 (changements très importants)
-
 
 
 n <- nrow(mental)   # Nombre d'observations
@@ -386,7 +391,7 @@ deviance_diff <- deviance(model_cum_prop) - deviance(model_cum_prop_avec_ti)
 deviance_diff
 
 # Différence de degrés de liberté
-df_diff <- model_cum_prop@df.residual - modele_cum_prop_avec_ti@df.residual
+df_diff <- model_cum_prop@df.residual - model_cum_prop_avec_ti@df.residual
 df_diff
 
 
@@ -420,5 +425,68 @@ df_diff
 
 # On rejette H0 : Beta_1_1 = Beta_1_2 = Beta_1_3 et Beta_2_1 = Beta_2_2 = Beta_2_3 ? 
 deviance_diff > qchisq(0.95, df = df_diff)
+
+
+
+###############################################################################
+# Données de comptage
+###############################################################################
+
+rm(list = setdiff(ls(), lsf.str()))
+
+green <- read.csv(file = "data/green.csv", sep=",")
+green
+
+str(green)
+summary(green)
+
+# Modèle lo-linéaire de Poisson
+model_poisson <- glm(formula = Species ~ pH + Biomass + pH:Biomass, 
+                     family = "poisson",
+                     data = green)
+
+summary(model_poisson)
+
+# Les prédictions du modèle correspondent assez bien aux observations
+plot(green$Species, fitted(model_poisson), xlab = "Observations", ylab = "Prédictions",
+     main = "Représentation des moyennes de Poisson prédites")
+abline(1,1, col="red")
+
+
+# Visualisation des résidus 
+plot(residuals.glm(model_poisson))
+
+
+# --------------------------------------------------------------------------
+# Données hétérogènes
+# --------------------------------------------------------------------------
+
+# Dans le cas où les données ne sont pas toutes exprimées dans la même unité
+
+# Jeu de données heartattack
+death <- c(32,104,206,186,102,2,12,28,28,31)
+personyears <- c(52407, 43248, 28612, 12663, 5317, 18790, 10673, 5710, 2585, 1462)
+age <- rep (c (40 ,50 ,60 ,70 ,80) ,2)
+status <- as.factor(c(rep("Smoker",5), rep("Non - smoker",5)))
+heartattack <- data.frame(status, age, death, personyears)
+heartattack
+
+# offset(log(personyears)) correspond au terme log(n_i)
+model_poisson_hetero <- glm (formula= death ~ age + status + offset(log(personyears)), 
+                             family = "poisson", 
+                             data = heartattack)
+
+# Le nombre de  morts semble augmenter avec l'age et si on fume
+summary(model_poisson_hetero)
+
+
+# Modèle binomial négatif
+#   pour résoudre un problème de sur-dispersion
+require (MASS)
+model_bin_negatif <- glm.nb(formula = death ~ age + status + offset(log(personyears)), 
+                            data = heartattack)
+
+# L'AIC et la déviance résiduelle sont bien meilleurs que le modèle de Poisson
+summary(model_bin_negatif)
 
 

@@ -24,6 +24,9 @@ library(ggplot2)
 # Definir un dossier comme repertoire de travail
 setwd("P:/Ludo/Cours/UE2 Introduction au langage R/tuto R")
 
+# Vérifier le répertoire de travail
+getwd()
+
 #-------------------------------------------------------------------
 # Conditions et boucles
 #-------------------------------------------------------------------

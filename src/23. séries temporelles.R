@@ -113,16 +113,16 @@ plot(diff(p4, differences = 4), pch=3, ylim = c(-3, 3))    # constante
 
 # Filtre moyenne mobile arithmétique paire d'ordre 12
 #   absorbe les saisonnalités de période 12 (paire)
-t1 <- (1/12) * filter(X_t, c(0.5, rep(1,times=11), 0.5))
-plot(t1, main = "Tendance polynomiale")
+m_t_hat <- (1/12) * filter(X_t, c(0.5, rep(1,times=11), 0.5))
+plot(m_t_hat, main = "Tendance polynomiale")
 
 # Filtre moyenne mobile arithmetique impaire d ordre 3
 #   absorbe les saisonnalités de période 3 (impaire)
-s1 <- ((1/3)*filter(X_t - t1,rep(1,times=3)))
+s1 <- ((1/3)*filter(X_t - m_t_hat,rep(1,times=3)))
 plot(s1, main = "Tendance saisonnière")
 
 # Le reste est le bruit
-plot(X_t - t1 - s1, main = "Bruit")
+plot(X_t - m_t_hat - s1, main = "Bruit")
 
 plot(X_t - lag(X_t, 12))
 

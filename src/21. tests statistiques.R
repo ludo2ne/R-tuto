@@ -47,6 +47,7 @@ legend("topright", inset=.05,
 
 # -----------------------------------------------------------------------------
 # P-valeur
+#   niveau de significativité le plus petit alpha tel que l'on rejette H0
 # -----------------------------------------------------------------------------
 
 # On veut tester H0 : t = 0 vs H1 : t <> 0 au niveau de risque alpha

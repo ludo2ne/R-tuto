@@ -6,12 +6,19 @@
 
 rm(list=ls())
 
+setwd("P:/Ludo/Tuto/R-tuto")
 
-# install.packages("Rlab")
-library(Rlab)      # pour la loi de Bernouilli
+
+# ---------------------------------------------------------------------
+# Packages utilisés
+# ---------------------------------------------------------------------
+
 library(dplyr)
 
-setwd("P:/Ludo/Tuto/R-tuto")
+
+# ---------------------------------------------------------------------
+# Import des données
+# ---------------------------------------------------------------------
 
 # Import de la base d aeroports
 aeroports <- read.csv2(file = "data/aeroports.csv",
@@ -33,7 +40,7 @@ rbind(format(aeroports, scientific = FALSE),
 
 
 # ---------------------------------------------------------------------
-# Sondage aleatoire simple Sans Remise (SRS)
+# Sondage aléatoire simple Sans Remise (SRS)
 # ---------------------------------------------------------------------
 
 N <- nrow(aeroports)        # Taille de la population
@@ -48,18 +55,18 @@ Pi_kl <- n/N * (n-1)/(N-1)  # Probabilites d inclusion d ordre 2
 # Exemple de tirage
 # ------------------------------
 
-# On fait N tirages
-rbern(N, prob = Pi_k) == 1
+# On fait N tirages suivant une loi de Bernouilli de paramètre Pi_k
+rbinom(N, 1, prob = Pi_k) == 1
 
-# Le probleme est que l on n est pas du tout sur d avoir n individus tires
+# Le problème est que l'on n'est pas du tout sur d'avoir n individus tirés
 # il peut y en avoir plus ou moins
-aeroports[rbern(N, prob = Pi_k) == 1,]
+aeroports[rbinom(N, 1, prob = Pi_k) == 1,]
 
-# Par exemple si l on simule 10 tirages voici le resultat
+# Par exemple si l'on simule 10 tirages voici le resultat
 for (i in 1:10) {
   print(sprintf("Tirage %s : nombre d aeroports tires = %s", 
                 i, 
-                nrow(aeroports[rbern(N, prob = Pi_k) == 1,])))
+                nrow(aeroports[rbinom(N, 1, prob = Pi_k) == 1,])))
 }
 
 # ------------------------------
@@ -80,7 +87,7 @@ format(y_bar_S1, scientific = FALSE, big.mark=" ")
 # Variance de la moyenne de Pass20
 V_y_bar_Pass20 <- (1-f)/n * var(S1$Pass20)
 
-# Estimation de l Intervalle de confiance 0.95 de la moyenne de Pass20
+# Estimation de l'Intervalle de confiance 0.95 de la moyenne de Pass20
 c(inf = round(y_bar_S1 - 1.96 * sqrt(V_y_bar_Pass20)), 
   sup = round(y_bar_S1 + 1.96 * sqrt(V_y_bar_Pass20))) 
 
@@ -92,15 +99,15 @@ sprintf("%0.1f%%", sqrt(V_y_bar_Pass20) / y_bar_S1 * 100)
 # Estimation du total pour Pass20
 # ------------------------------
 
-t_hat_Pass20 <- N * y_bar_S1              # Estimateur de Horvitz Thompson
+t_hat_Pass20 <- N * y_bar_S1              # Estimateur de Horvitz-Thompson
 format(t_hat_Pass20, scientific = FALSE, big.mark=" ")
 
-# Estimation de la variance de l estimateur de Horvitz Thompson
-s2_y <- var(S1$Pass20)                         # Estimateur de la variance des y_k (Variance corrigee)
+# Estimation de la variance de l'estimateur de Horvitz-Thompson
+s2_y <- var(S1$Pass20)                         # Estimateur de la variance des y_k (Variance corrigée)
 V_hat_HT_Pass20 <- N^2 * (1 - f)/n * s2_y      # Estimateur de la variance de t_hat_y_Pi
 format(V_hat_HT_Pass20, scientific = FALSE, big.mark=" ")
 
-# Estimation de l Intervalle de confiance 0.95 de la moyenne de Pass20
+# Estimation de l'Intervalle de confiance 0.95 de la moyenne de Pass20
 c(inf = round(t_hat_Pass20 - 1.96 * sqrt(V_hat_HT_Pass20)), 
   sup = round(t_hat_Pass20 + 1.96 * sqrt(V_hat_HT_Pass20)))
 
@@ -109,7 +116,7 @@ sprintf("%0.1f%%", sqrt(V_hat_HT_Pass20) / t_hat_Pass20 * 100)
 
 
 # ---------------------------------------------------------------------
-# Sondage aleatoire simple Stratifie
+# Sondage aléatoire simple Stratifié
 # ---------------------------------------------------------------------
 
 # Decoupage de la population en 2 strates
@@ -161,7 +168,7 @@ y_bar_V_0 <- round(colMeans(V_0[c("Pass20")]))
 y_bar_V_1 <- round(colMeans(S_V_1[c("Pass20")]))   
 y_bar_V_2 <- round(colMeans(S_V_2[c("Pass20")]))   
 
-# Estimateur de Horvitz Thompson de Pass20
+# Estimateur de Horvitz-Thompson de Pass20
 format(Nh_0 * y_bar_V_0 + 
        Nh_1 * y_bar_V_1 + 
        Nh_2 * y_bar_V_2, 
@@ -170,11 +177,11 @@ format(Nh_0 * y_bar_V_0 +
 
 
 # ---------------------------------------------------------------------
-# Tirage a probabilites inegales
+# Tirage à probabilités inégales
 # ---------------------------------------------------------------------
 
 # ------------------------------
-# Probabilites d inclusion proportionnelles a Pass19
+# Probabilités d'inclusion proportionnelles a Pass19
 # ------------------------------
 
 aeroports$Pi_k <- round(n * aeroports$Pass19 / sum(aeroports$Pass19), 2)
@@ -188,23 +195,23 @@ barplot(height = aeroports$Pi_k,
         ylim = c(0,1))
 
 # ------------------------------
-# Probabilites d inclusion proportionnelles a Pop19
+# Probabilités d'inclusion proportionnelles a Pop19
 # ------------------------------
 
 aeroports$Pi_k <- round(n * aeroports$Pop19 / sum(aeroports$Pop19), 2)
 
-# Probleme il y a des probabilites superieures a 1
+# Problème il y a des probabilités supérieures a 1
 aeroports
 aeroports[aeroports$Pi_k > 1,]
 
-# On ramene ces probabilites a 1 et on recalcule l ensemble des autres probabilites
+# On ramène ces probabilites a 1 et on recalcule l ensemble des autres probabilités
 aeroports$Pi_k[aeroports$Pi_k > 1] <- 1
 n_restants <- n - nrow(aeroports[aeroports$Pi_k == 1,])
 
 aeroports[aeroports$Pi_k < 1,]$Pi_k <- round(n_restants * aeroports[aeroports$Pi_k < 1,]$Pop19 / sum(aeroports[aeroports$Pi_k < 1,]$Pop19), 2)
 aeroports
 
-# Verification que la somme des Pi_k est bien egale a n
+# Vérification que la somme des Pi_k est bien égale a n
 sum(aeroports$Pi_k)
 
 # Visualisation des Pi_k
@@ -262,13 +269,13 @@ sprintf("%0.1f%%", sqrt(V_hat_HT_Trans20) / t_hat_Trans20 * 100)
 # on retire la colonne u_k dont on n'a plus besoin
 aeroports <- subset(aeroports, select = -c(u_k))
 
-# Determination des intervalles
+# Détermination des intervalles
 V_k <- cumsum(aeroports$Pi_k)     # Somme cumulative
 aeroports$V_k_1 <- c(0, V_k[-N])   # on recopie V_k dans V_k1 en commencant par 0 et ainsi en decalant de 1
 aeroports$V_k <- V_k
 aeroports
 
-# Generation d une valeur entre 0 et 1 avec une loi uniforme
+# Génération d'une valeur entre 0 et 1 avec une loi uniforme
 u <- runif(1, min=0, max=1)
 
 # Tirage

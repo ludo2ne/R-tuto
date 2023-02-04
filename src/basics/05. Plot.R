@@ -4,14 +4,14 @@
 #* ENSAI 2023                                                             *
 #**************************************************************************
 
-#-------------------------------------------------------------------
-# TODO
-#-------------------------------------------------------------------
-
 rm(list=ls())
 
-
 setwd("P:/Ludo/Tuto/R-tuto")
+
+
+#-------------------------------------------------------------------
+# Import de données
+#-------------------------------------------------------------------
 
 # Lire un fichier csv
 personne <- read.csv2("data/personne.csv", 
@@ -57,6 +57,13 @@ polygon(x = c(zone, zone[n]),
         y = c(Y, Y[1]), 
         col = "green")
 
+
+curve(pnorm(x, 0, 1), col = "red", , from = -5, to = 5)
+points(c(2, 4), c(0.6, 0.8), pch = 3, col = "green")
+legend("left", inset=.05, lty=c(1, NA), pch = c(NA, 3), 
+       c("Fonction répartition", "des points"), 
+       col=c("red", "green"))
+
 #-------------------------------------------------------------------
 # Boxplot
 #-------------------------------------------------------------------
@@ -75,7 +82,7 @@ library(ggplot2)
 
 ggplot(data = personne,
        mapping = aes(x = dnais, y = taille)) + 
-  geom_line() +
+  geom_point() +
   labs(title = "Taille en fonction de la date de naissance", 
        caption = "Source : stats du dimanche")
 
@@ -93,8 +100,7 @@ ggplot(data = personne,
     label="Point important", 
     x = 38,
     y = 180
-  ) +
-  geom_abline(intercept = coeff[1], slope = coeff[2])
+  )
 
 
 

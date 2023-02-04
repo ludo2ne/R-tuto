@@ -27,3 +27,7 @@ Quelques exemples de procédures R utiles pour la Data Science
 * [ ] Apprentissage Supervisé
 * [ ] Sondages
 	* [x] en cours
+	
+# :construction: Todo
+
+* Créer des fichiers Rmd

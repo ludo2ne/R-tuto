@@ -1,10 +1,10 @@
 # R-tuto
-Quelques exemples de procédures R
+Quelques exemples de procédures R utiles pour la Data Science
 
 ### Utilisation
 
 * Importer en local les fichiers .R est .csv
-* Dans tuto.R, modifier le répertoire de travail (setwd(...))
+* Dans les fichiers .R, modifier le répertoire de travail (setwd(...))
 * et c'est parti
 
 ### Avancement 
@@ -15,12 +15,13 @@ Quelques exemples de procédures R
 	* [x] Vecteur
 	* [x] DataFrame
 	* [ ] Graphiques
+	* [ ] Dplyr
 * [ ] Régression linéaire simple
-* [ ] Régression linéaire multiple
-	* [x] en cours
+* [x] Régression linéaire multiple
 * [ ] Tests
 * [ ] GLM
 * [ ] Séries Temporelles
+* [ ] Modèles de Survie
 * [ ] Clustering
 * [ ] Méthodes factorielles
 * [ ] Apprentissage Supervisé

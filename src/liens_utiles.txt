@@ -1,1 +1,4 @@
 https://r-coder.com/add-legend-r/
+
+https://github.com/julienjamme/tutos_R/blob/main/data_manipulation/decouvrir_dplyr.Rmd
+https://github.com/julienjamme/tutos_R/blob/main/list_manipulation/R/intro_use_lists.R

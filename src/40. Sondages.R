@@ -6,6 +6,7 @@
 
 rm(list=ls())
 
+
 # install.packages("Rlab")
 library(Rlab)      # pour la loi de Bernouilli
 library(dplyr)
@@ -303,3 +304,25 @@ summary(reg1)
 
 plot(aeroports$Pass19, aeroports$Pass20, xlim = c(0,2000000), ylim = c(-100000, 800000))
 abline(reg1)
+
+
+# -----------------------------------------------------------------------------
+# Bonus
+# -----------------------------------------------------------------------------
+
+notes_2022 <- c(0, 1.5, 3, 3, 3.5, 3.5, 4, 4.5, rep(5,3), 5.5, 6, 6, 6.5, 6.5, rep(7,6))
+notes_2022 <- c(notes_2022, rep(7.5,3), rep(8,4), rep(8.5,5), rep(9,2), rep(10,8), rep(10.5,8))
+notes_2022 <- c(notes_2022, rep(11,7), rep(11.5,8), rep(12,11), rep(12.5, 13), rep(13,15), rep(13.5,6))
+notes_2022 <- c(notes_2022, rep(14,5), rep(14.5,8), rep(15,12), rep(15.5,8), rep(16,9), rep(16.5,4))
+notes_2022 <- c(notes_2022, rep(17,3), rep(17.5,2), rep(18,2), 19)
+
+moyenne_notes_2022 <- mean(notes_2022)
+
+hist(notes_2022, 
+     main="Distribution 2022 des notes de Théorie des Sondages",
+     xlab="Notes 2022",
+     xlim=c(0,20),
+     col="lightblue", 
+     breaks = length(table(notes_2022)))
+abline(v=moyenne_notes_2022, col="red")
+

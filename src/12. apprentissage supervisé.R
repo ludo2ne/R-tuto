@@ -56,7 +56,7 @@ library(ggplot2)
 # ou sinon si pb pour installer le package nutshell
 
 
-setwd("P:/Ludo/Cours2A/UE2 Apprentissage supervisé/TP/TP3")
+setwd("P:/Ludo/Cours2A/UE2 Apprentissage supervise/TP/TP3")
 
 spambase <- read.csv(file = "spambase.csv", 
                  stringsAsFactors = TRUE, 

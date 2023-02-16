@@ -1,0 +1,338 @@
+---
+title: "Modèles de Survie"
+author: "Deneuville Ludovic"
+date: "2023"
+output: 
+  html_document:
+    number_sections: TRUE
+    self-contained: TRUE
+    code-folding: FALSE
+    toc: TRUE
+    toc-depth: 2
+    toc-location: left
+    toc-float: TRUE
+    tbl-cap-location: bottom
+    theme: cerulean
+    highlight: tango
+    css: style/styles.css
+---
+
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE, 
+                      eval = TRUE, 
+                      warning = FALSE, 
+                      message = FALSE, 
+                      cache = TRUE, 
+                      fig.align = 'center', 
+                      dpi = 300, 
+                      out.width = '65%')
+options(width = 200)
+```
+
+
+
+# Avant de commencer
+
+Réinitialisation de l'environnement
+
+```{r}
+rm(list=ls())
+```
+
+Librairies utiles
+
+```{r}
+library(dplyr)
+library(survival)
+```
+
+---
+
+
+# Génération des données
+
+* Durées de vie : $X \sim Exp(0.3)$
+* Censures à droite : $C \sim Exp(0.1)$
+* Temps d'observation : $T = min(X,C)$
+
+
+```{r}
+set.seed(20)
+n <- 150
+
+X <- rexp(n, 0.3)               # Temps de survie (Xi)
+C <- rexp(n, 0.1)               # Temps de censures à droite (Ci)
+T <- pmin(X, C)                 # Temps d'observation (Ti)
+
+data <- data.frame(X, C, T)
+
+# statut de censure (0 : censure à droite, 1 : pas de censure, 2 : censure à gauche)
+data$censure <- ifelse(X <= C, 1, 0)
+
+head(data, 10)
+```
+
+
+---
+
+
+# Modèles paramétriques
+
+Les fonctions de risque instantané des 2 principaux modèles :
+
+* Modèle exponentiel : $\lambda(t,\ Z)\ =\ \theta\ exp(\beta^T Z)$
+* Modèle de Weibull : $\lambda(t,\ Z)\ =\ \theta\ \gamma\ (\theta\ t)^{\gamma-1} exp(\beta^T Z)$
+
+avec $Z$ : les covariables
+
+
+
+## Estimation paramétrique du modèle sans prise en compte des censures
+
+On suppose que toutes les observations sont vraies ie. les censures sont considérées comme des décès
+
+```{r}
+model1 <- survreg(Surv(data$T, rep(1,n)) ~ 1, dist = "exponential")
+summary(model1)
+
+exp(-model1$coefficients)          # Valeur du paramètre de la loi exponentielle estimée
+exp(-model1$coefficients) - 0.3    # Biais
+```
+
+
+---
+
+
+## Estimation paramétrique du modèle en supprimant les censures
+
+```{r}
+model2 <- survreg(Surv(data$T, data$censure) ~ 1, 
+                  dist = "exponential",
+                  subset = data$censure == 1)
+summary(model2)
+
+
+exp(-model2$coefficients)          # Valeur du paramètre de la loi exponentielle estimée
+exp(-model2$coefficients) - 0.3    # Biais
+```
+
+
+---
+
+
+## Estimation paramétrique du modèle en considérant les censures
+
+```{r}
+model3 <- survreg(Surv(data$T, data$censure) ~ 1, 
+                  dist = "exponential")
+summary(model3)
+
+exp(-model3$coefficients)          # Valeur du paramètre de la loi exponentielle estimée
+exp(-model3$coefficients) - 0.3    # Biais
+```
+
+
+---
+
+## Comparaisons
+
+```{r}
+data_compare <- data %>%
+  arrange(T) %>%
+  mutate(no_censor = exp(-exp(-model1$coefficients) * T),
+         tronc_censor = ifelse(censure == 1, exp(-exp(-model2$coefficients) * T), NA),
+         with_censor = exp(-exp(-model3$coefficients) * T))
+```
+
+```{r}
+plot(with_censor ~ T, data = data_compare, 
+     type = "l", col = "green", 
+     xlab = "Probabilité de Survie", ylab = "Temps")
+lines(no_censor ~ T, data = data_compare, type = "l", col = "orange")
+lines(tronc_censor ~ T, data = data_compare, type = "l", col = "red")
+legend("topright", 
+       legend = c("Modèle paramétrique avec censures", 
+                "Modèle paramétrique sans censures", 
+                "Modèle paramétrique avec données tronquées"),
+       col=c("green", "orange", "red"), 
+       lty = 1:1)
+```
+
+
+---
+
+
+
+# Modèles non paramétriques
+
+## Courbe de survie par la méthode de Kaplan-Meier
+
+
+```{r}
+Kaplan_Meier <- survfit(Surv(data$T, data$censure) ~ 1,
+                        type = "kaplan-meier",
+                        error = c("greenwood"))
+
+Kaplan_Meier
+```
+
+Calcul pas à pas de la fonction de Survie, à l'instant t :
+* risque = nombre de décès / nombre d'individus à risque
+* survie = produit de (1 - risque) pour tous les instants inférieurs ou égal à t
+
+
+```{r}
+taleau_KM <- data.frame(temps_obs = Kaplan_Meier$time,
+                       nb_deces = Kaplan_Meier$n.event,
+                       nb_censures = Kaplan_Meier$n.censor,
+                       nb_a_risque = Kaplan_Meier$n.risk)
+
+taleau_KM <- taleau_KM %>%
+  mutate(risque = nb_deces / nb_a_risque) %>%
+  mutate(survie = cumprod(1 - risque))             # = Kaplan_Meier$surv
+
+head(taleau_KM, 10)
+tail(taleau_KM, 10)
+```
+
+
+```{r}
+plot(with_censor ~ T, data = data_compare, 
+     type = "l", col = "green", 
+     xlab = "Probabilité de Survie", ylab = "Temps")
+#lines(KM ~ T, data = data_compare, type = "l", col = "blue")
+lines(Kaplan_Meier, col = "blue")
+legend("topright", 
+       legend = c("Modèle paramétrique avec censures", 
+                "Courbe de Kaplan-Meier"),
+       col=c("green", "blue"), 
+       lty = 1:1)
+```
+
+
+---
+
+
+## Courbe de survie par méthode actuarielle
+
+TODO
+
+---
+
+
+## Comparaisons
+
+```{r}
+# Calcul des fonctions de survie
+# S(t) = exp(-lambda) = exp(-exp(fit_event$coefficients))
+
+data_compare <- data_compare %>%
+  arrange(T) %>%
+  mutate(KM = Kaplan_Meier$surv)
+```
+
+```{r}
+plot(with_censor ~ T, data = data_compare, 
+     type = "l", col = "green", 
+     xlab = "Probabilité de Survie", ylab = "Temps")
+lines(KM ~ T, data = data_compare, type = "l", col = "blue")
+legend("topright", 
+       legend = c("Modèle paramétrique avec censures", 
+                "Courbe de Kaplan-Meier"),
+       col=c("green", "blue"), 
+       lty = 1:1)
+```
+
+
+---
+
+
+# Modèles semi-paramétriques
+
+## Modèle de Cox
+
+
+$\lambda(t,\ Z)\ =\ \lambda_0(t)\ exp(\beta^T Z)$ avec $\lambda_0(t)$ non spécifié
+
+```{r}
+data7 <- data.frame(sexe = rbinom(n, 1, prob = 0.5),
+                    age = round(runif(n, 20, 80)),
+                    dose = rpois(n, 5))
+
+data7 <- data7 %>%
+  mutate(X = 100 * rexp(n, 0.1 + age/10 + sexe),
+         C = 100 *rexp(n, 0.1)) %>%
+  mutate(T = pmin(X, C),
+         censure = ifelse(X <= C, 1, 0))
+
+```
+
+
+```{r}
+plot(data7$age, data7$X, xlab = "Age", ylab = "Temps de survie", pch = 3, col = data7$sexe + 1)
+legend("topright", 
+       legend=c("Sexe = 0", "Sexe = 1"),
+       col=c("black", "red"), lty=1:1)
+```
+
+
+
+```{r}
+cox_model <- coxph(Surv(T, censure) ~ factor(sexe) + age + dose, 
+                   data = data7)
+summary(cox_model)
+```
+
+
+```{r}
+plot(survfit(cox_model),
+     ylim = c(0,1),
+     col = "green",
+     xlab = "Temps (jours)",
+     ylab = "Fonction de survie",
+     main = "Fonction de survie")
+
+lines(survfit(Surv(T, censure) ~ 1, data = data7), col = "blue", conf.int = FALSE)
+lines(survfit(cox_model, newdata = data.frame(sexe = 0, dose = 5, age = 35)), col = "orange", conf.int = FALSE)
+legend("topright", 
+       legend=c("Cox moyen", "Kaplan-Meier", "Cox ajusté (sexe=0, age=35, dose = 5)"),
+       col=c("green", "blue","orange"), lty=1:1)
+```
+
+
+---
+
+
+## Comparaison de modèles avec un test de rapport de vraisemblance
+
+Log vraisemblance modèle non contraint
+
+```{r}
+loglik_M1 <- cox_model$loglik[2]
+```
+
+Log vraisemblance modèle contraint (non prise en compte de *dose*)
+
+```{r}
+cox_contraint <- coxph(Surv(T, censure) ~ factor(sexe) + age, 
+                   data = data7)
+summary(cox_contraint)
+
+# Log vraisemblance modèle contraint
+loglik_M0 <- cox_contraint$loglik[2]
+```
+
+
+
+Test du rapport de vraisemblance 
+
+* H0 : le coefficient associé à la covariable *dose* vaut 0
+* Sous H0, le rapport de vraisemblance suit une loi du chi2 à m degrés de liberté (où m est le nombre de paramètres de différence entre les deux modèles)
+
+```{r}
+LRT <- 2 * (loglik_M1 - loglik_M0)
+1 - pchisq(LRT, 1)
+```
+
+La p-valeur est très supérieure à 0.05, donc on ne rejette pas H0.

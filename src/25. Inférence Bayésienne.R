@@ -50,7 +50,7 @@ chisq.test(table(N))
 ks.test(u, "punif", 0 ,1)
 
 # ECDF : Empirical Cumulative Distribution Function
-plot(ecdf(U), col = "blue", main = "Comparaison de fonctions de répartitions")
+plot(ecdf(u), col = "blue", main = "Comparaison de fonctions de répartitions")
 curve(punif(x), col = "red", add=TRUE)
 legend("topleft", inset=.05, lty=c(1, 1), 
        c("Empirique", "Théorique"), 
@@ -150,6 +150,7 @@ while(i <= n){
   y <- -(1 / alpha) * log(v)          # y ~ loi exponentielle(alpha)
   u <- runif(1)
   
+  points(y, sqrt(y) * exp(-(1 - alpha) * y) / K, pch = 20, cex = 0.2, col = "blue")
   # points(y, exp(-alpha * y) * K, pch = 20, cex = 0.2, col = "red")
   points(y, u, pch = 20, cex = 0.2, col = "orange")
   
@@ -160,8 +161,6 @@ while(i <= n){
   }
 }
 
-
-
 matrix(c(k, k-n), ncol = 2, dimnames = list(" ", c("iter", "rejet")))
 
 # Fonction de répartition
@@ -169,6 +168,48 @@ plot(ecdf(x), col = "blue", main = "Comparaison de fonctions de répartitions")
 curve(pgamma(x, shape = 1.5, rate = 1), col = "red", add = TRUE)
 
 ks.test(x, "pgamma", 1.5, 1)
+
+
+
+
+# ------------------------------------------------------------------------
+# Algorithme d'Acceptation-Rejet                  BIS
+#   Génération d'une loi Gamma(1.5, 1)
+# ------------------------------------------------------------------------
+
+# TODO fix or remove ?
+
+n <- 1000
+alpha <- 0.9
+K <- exp(-0.5) / sqrt (2 * (1 - alpha))
+
+x <- matrix(0, nr = 1, nc = n)
+
+curve(dgamma(x, shape = 1.5, rate = 1), bty="n",
+      from = 0, to = 10, ylim = c(0, 1),
+      xlab = "y", ylab = "f(y)")
+
+i = 0
+k = 0
+
+while(i <= n){
+  k <- k + 1
+  v <- runif(1)
+  y <- -(1 / alpha) * log(v)          # y ~ loi exponentielle(alpha)
+  m <- exp(-alpha * y) * K
+  u <- runif(1, 0, m)
+  
+  points(y, m, pch = 20, cex = 0.2, col = "blue")
+  # points(y, exp(-alpha * y) * K, pch = 20, cex = 0.2, col = "red")
+  points(y, u, pch = 20, cex = 0.2, col = "orange")
+  
+  if(u <= sqrt(y) * exp(- y)){
+    x[i] <- y
+    i <- i + 1
+    points(y , u, pch = 20, cex = 0.2, col = "green")
+  }
+}
+
 
 
 # ------------------------------------------------------------------------

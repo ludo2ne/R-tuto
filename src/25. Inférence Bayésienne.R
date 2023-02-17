@@ -227,3 +227,89 @@ sampled$accepted = ifelse(runif(n, 0, 1) < sampled$targetDensity / maxDens, TRUE
 
 hist(sampled$proposal[sampled$accepted], freq = FALSE, col = "grey", breaks = 100)
 curve(dbeta(x, 3,6),0,1, add = TRUE, col = "red")
+
+
+
+##########################################################################
+# Méthode de Monte-Carlo
+##########################################################################
+
+
+# ------------------------------------------------------------------------
+# Calcul de Pi
+# ------------------------------------------------------------------------
+
+set.seed(100)
+
+n <- 10000
+
+X <- runif(n)
+Y <- runif(n)
+
+# g renvoie 1 si le point (x, y) est dans le disque de centre (0, 0) et de rayon 1
+g <- function(x, y){
+  1 * (x^2 + y^2 <= 1)
+}
+
+I_hat_n <- sum(g(X, Y)) / n
+
+# Estimation de Pi (Aire du disque de rayon 1)
+#   on multiplie par 4 car X et Y sont à valeurs dans [0, 1] 
+#   donc n'appartiennent qu'au quart de cercle supérieur droit
+4 * I_hat_n
+
+# Estimation de la variance par la méthode de Monte-Carlo
+sigma_hat_n <- sum(g(X, Y)^2) / n - I_hat_n^2
+
+# Comme g = g², la variance est directement égale à
+I_hat_n - I_hat_n^2
+
+
+# Intervalle de confiance à 95% de Pi
+4 * c(I_hat_n - qnorm(0.975) * sqrt(sigma_hat_n) / sqrt(n),
+      I_hat_n + qnorm(0.975) * sqrt(sigma_hat_n) / sqrt(n))
+
+
+estimer_pi <- function(n){
+  res <- rep(NA, n)
+  for (i in 1:n) {
+    for(j in 1:i){
+      X <- runif(j)
+      Y <- runif(j)
+      res[j] <- sum(1 * (x^2 + y^2 <= 1)) / n
+    }
+  }
+  plot(ts(res))
+  return(res)
+}
+
+estimer_pi(100)
+
+# ------------------------------------------------------------------------
+# X ~ Binom(p)
+# p ~ Beta(1/2, 1/2)
+# ------------------------------------------------------------------------
+
+set.seed(222)
+
+n <- 100
+
+P <- rbeta(n, 0.5, 0.5)
+
+# On observe k réalisations de X et on cherche la loi à postériori de p
+# et l'estimation de p par moyenne à postériori
+k <- 10
+sum_X_j <- 7
+
+p_hat <- sum(P * P^sum_X_j * (1 - P)^(k - sum_X_j)) / sum(P^sum_X_j * (1 - P)^(k - sum_X_j)) 
+
+
+
+
+
+
+
+
+
+
+

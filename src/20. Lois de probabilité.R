@@ -1,42 +1,56 @@
 #**************************************************************************
-#* Lois usuelles                                                   *
+#* Lois usuelles                                                          *
 #* Ludovic Deneuville                                                     *
 #* ENSAI 2023                                                             *
 #**************************************************************************
 
 
-# Loi Normale N(0, 1) - 10 tirages
-rnorm(n = 10, mean = 0, sd = 1)
+rm(list=ls())
 
-# Loi Binomiale B(2, 0,5) - 15 tirages
-rbinom(15, 2, 0.5)
+
+###############################################################################
+# Lois continues
+###############################################################################
+
+# -----------------------------------------------------------------------------
+# Loi Uniforme
+# -----------------------------------------------------------------------------
+
+runif(1, min = 0, max = 1)
+
+curve(dunif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "Densité de la loi Uniforme")
+curve(punif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "Fonction de répartition de la loi Uniforme")
 
 
 # -----------------------------------------------------------------------------
-# Affichage des densites
+# Loi Exponentielle
 # -----------------------------------------------------------------------------
 
-# Densite d une loi Normale Centree Reduite
+lambda <- 2               # Paramétre de la loi exponentielle
+rexp(1, rate = lambda)    # Générer une valeur
 
+curve(dexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Densité de la loi Exponentielle")
+curve(pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de répartition de la loi Exponentielle")
+curve(1 - pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de survie de la loi Exponentielle")
 
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi Normale
-# -------------------------------
+# -----------------------------------------------------------------------------
 
-# Densite
+# Densité
 x <- seq(-5,5, by=0.1)
 plot(x = x, 
      y = dnorm(x), 
      type = "l",
      main= "Densité de la loi Normale centrée réduite")
 
-# Fonction de reparition
+# Fonction de réparition
 plot(x = x, 
      y = pnorm(x), 
      type = "l",
      main= "Fonction de répartition de la loi Normale centrée réduite")
 
-# Quantiles (inverse de la fonction de repartition)
+# Quantiles
 x1 <- seq(0,1, by=0.01)
 plot(x = x1,
      y = qnorm(x1), 
@@ -52,15 +66,20 @@ legend("topleft", inset=.05, lty=c(1, 1),
 x
 qnorm(pnorm(x))
 
-
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi du Chi2
-# -------------------------------
+# -----------------------------------------------------------------------------
 
+rchisq(1, df = 4)       # Générer une valeur de la loi de chi2 à 4 degrés de liberté
+qchisq(0.95, df = 3)    # Quantile d'ordre 0.95 de la loi de chi2 à 3 degrés de liberté
+pchisq(10, df = 2)      # Fonction de répartition
+
+
+# Visualisation de la densité
 curve(dchisq(x, df = 1), from = 0, to = 50, col = "blue",
-      xlab="x value",
-      ylab="Density", 
-      main="Chi2 Distribution")
+      xlab = "x",
+      ylab = "Densité", 
+      main = "Loi du Chi2")
 curve(dchisq(x, df = 2), from = 0, to = 50, col = "cyan", add = TRUE)
 curve(dchisq(x, df = 3), from = 0, to = 50, col = "red", add = TRUE)
 curve(dchisq(x, df = 4), from = 0, to = 50, col = "green", add = TRUE)
@@ -70,12 +89,12 @@ curve(dchisq(x, df = 20), from = 0, to = 50, col = "orange", add = TRUE)
 legend("topright", inset=.05, lty = 1,
        c("1","2","3","4","10","20"), 
        col = c("blue", "cyan", "red", "green", "purple", "orange"),
-       title = "Degrees of freedom")
+       title = "Degrés de liberté")
 
 
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi de Student
-# -------------------------------
+# -----------------------------------------------------------------------------
 
 plot_student_distribution <- function() {
   x <- seq(-4, 4, length=100)
@@ -106,9 +125,9 @@ plot_student_distribution <- function() {
 plot_student_distribution()
 
 
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi de Fisher
-# -------------------------------
+# -----------------------------------------------------------------------------
 
 curve(df(x, df1 = 8, df2 = 100), from = 0, to = 10, 
       xlab="x value",
@@ -116,9 +135,9 @@ curve(df(x, df1 = 8, df2 = 100), from = 0, to = 10,
       main="Fisher Distribution")
 
 
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi Gamma
-# -------------------------------
+# -----------------------------------------------------------------------------
 
 # Densité
 curve(dgamma(x, shape = 1, rate = 1.5), 
@@ -128,9 +147,9 @@ curve(dgamma(x, shape = 1, rate = 1.5),
       xlab="")
 
 
-# -------------------------------
+# -----------------------------------------------------------------------------
 # Loi Beta
-# -------------------------------
+# -----------------------------------------------------------------------------
 
 curve(dbeta(x, 10, 2), 
       from=0, 
@@ -138,17 +157,62 @@ curve(dbeta(x, 10, 2),
       bty="n", 
       xlab="")
 
+# La loi Beta(1, 1) correspond à la loi uniforme sur [0, 1]
+curve(dbeta(x, 1, 1), 
+      from=0, 
+      to=1, 
+      bty="n", 
+      xlab="")
 
 
-# -----------------------------------------------------------------------------
+###############################################################################
 # Lois discretes
+###############################################################################
+
+# -----------------------------------------------------------------------------
+# Loi de Poisson
 # -----------------------------------------------------------------------------
 
-# -------------------------------
-# Loi de Poisson
-# -------------------------------
+lambda <- 3      # Paramètre de la loi de Poisson
 
-plot(dpois(x=1:50,lambda=3))
+plot(dpois(x = 1:50, lambda = 3), pch = 3)
 
 
+# -----------------------------------------------------------------------------
+# Loi de Bernouilli
+# -----------------------------------------------------------------------------
 
+rbinom(10, size = 1, prob = 0.6)
+
+
+# -----------------------------------------------------------------------------
+# Loi de Binomiale
+# -----------------------------------------------------------------------------
+
+n <-  8
+p <- 0.8
+rbinom(10, size = n, prob = p)
+
+
+
+###############################################################################
+# Divers
+###############################################################################
+
+
+n <- 150                 # Nombre de valeur générées
+n01 <- rnorm(n, 0, 1)
+
+curve(dnorm(x), col = 2, xlim = c(-5, 5), main = "Densité d'une loi Normale")
+rug(n01, col = "blue")   # Tapis des valeurs générées
+
+# Histogramme
+hist(n01, breaks = 20)
+
+# Densité estimée à partir des valeurs générées
+density(n01)
+plot(density(n01), main = "Comparaison des densités", 
+     xlim = c(-5, 5), ylim = c(0, 0.5), col = "blue")
+curve(dnorm(x), col = "red", add = TRUE)
+legend("topleft", inset=.05, lty=c(1, 1),
+       c("Densité Théorique", "Densité Empirique"), col= c("red", "blue"))

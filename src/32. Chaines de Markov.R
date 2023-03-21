@@ -1,5 +1,5 @@
 #**************************************************************************
-#* Chaines de Markov                                                       *
+#* Chaines de Markov                                                      *
 #* Ludovic Deneuville                                                     *
 #* ENSAI 2023                                                             *
 #**************************************************************************
@@ -44,4 +44,45 @@ plot(ts(res), type = "o", pch = 20, col = "blue")
 table(res)
 prop.table(table(res))
 
+
+# ------------------------------------------------------------------------
+# Marche aléatoire en 2D
+# ------------------------------------------------------------------------
+
+marche_aleatoire_2d <- function(n = 1000){
+  # Coordonnées des points
+  x <- rep(0, n)
+  y <- rep(0, n)
+  
+  # Test si l'on va en haut, en bas, à gauche, à droite
+  for (i in 2:n) {
+    val <- sample(c(1, 2, 3, 4), prob = c(0.25, 0.25, 0.25, 0.25), size = 1)
+    if (val == 1){
+      x[i] = x[i-1] + 1
+      y[i] = y[i-1]
+    }
+    if (val == 2){
+      x[i] = x[i-1] - 1
+      y[i] = y[i-1]
+    }
+    if (val == 3){
+      x[i] = x[i-1]
+      y[i] = y[i-1] + 1
+    }
+    if (val == 4){
+      x[i] = x[i-1]
+      y[i] = y[i-1] - 1
+    }
+  }
+  
+  # Affichage
+  plot(x, y, typ = "l")
+  points(0, 0, pch = 3, col = "blue", lwd = 2)
+  points(x[length(x)], y[length(y)], pch = 3, col = "green", lwd = 2)
+}
+
+marche_aleatoire_2d(50000)
+
+# Centre
+c(mean(x), mean(y))
 

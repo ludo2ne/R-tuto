@@ -178,6 +178,7 @@ Kaplan_Meier
 ```
 
 Calcul pas à pas de la fonction de Survie, à l'instant t :
+
 * risque = nombre de décès / nombre d'individus à risque
 * survie = produit de (1 - risque) pour tous les instants inférieurs ou égal à t
 

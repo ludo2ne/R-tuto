@@ -13,7 +13,7 @@ setwd("P:/Ludo/Tuto/R-tuto")
 # Générateur de nombres aléatoires
 # ------------------------------------------------------------------------
 
-# R utilise le générateur de Mersenne-Twister de période 
+# R utilise le générateur de Mersenne-Twister de période 2^19937-1
 
 set.seed(0)
 runif(4)
@@ -248,7 +248,7 @@ Y <- runif(n)
 
 # g renvoie 1 si le point (x, y) est dans le disque de centre (0, 0) et de rayon 1
 g <- function(x, y){
-  1 * (x^2 + y^2 <= 1)
+  return (1 * (x^2 + y^2 <= 1))
 }
 
 I_hat_n <- sum(g(X, Y)) / n
@@ -276,14 +276,15 @@ estimer_pi <- function(n){
     for(j in 1:i){
       X <- runif(j)
       Y <- runif(j)
-      res[j] <- sum(1 * (x^2 + y^2 <= 1)) / n
+      res[j] <- 4 * sum(1 * (X^2 + Y^2 <= 1)) / j
     }
   }
   plot(ts(res))
+  abline(h = pi, col = "red")
   return(res)
 }
 
-estimer_pi(100)
+estimer_pi(200)
 
 # ------------------------------------------------------------------------
 # X ~ Binom(p)
@@ -306,7 +307,16 @@ p_hat <- sum(P * P^sum_X_j * (1 - P)^(k - sum_X_j)) / sum(P^sum_X_j * (1 - P)^(k
 
 
 
+##########################################################################
+# Méthode de Monte-Carlo par chaine de Markov
+##########################################################################
 
+# Si l'on ne sait pas simuler la loi f, on ne peut pas appliquer la méthode de Monte-Carlo
+# On va utiliser une chaine de Markov de loi stationnaire f
+
+# ------------------------------------------------------------------------
+# Algorithme de Metropolis Hasting
+# ------------------------------------------------------------------------
 
 
 

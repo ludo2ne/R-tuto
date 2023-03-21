@@ -74,3 +74,28 @@ qt(1 - p_val / 2, n)
 
 
 
+# -----------------------------------------------------------------------------
+# Test de Shapiro-Wilk
+#   Test de Normalité
+# -----------------------------------------------------------------------------
+
+#d issu d'une loi normale
+d<-rnorm(100, mean = 5, sd = 3)
+
+#e issu d'une loi uniforme
+e<-runif(100, min = 2, max = 4)
+
+# on réalise un test de shapiro
+
+shapiro.test(d)
+qqnorm(d) #p=0.35 on ne rejette pas l'hypothèse et on vérifie avec un QQplot
+
+shapiro.test(e)
+qqnorm(e) # p=0.00036 on rejette l'hypothèse et on vérifie avec un QQplot
+
+
+# -----------------------------------------------------------------------------
+# Test de Kolmogorov-Smirnov
+# -----------------------------------------------------------------------------
+
+

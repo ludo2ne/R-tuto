@@ -9,6 +9,86 @@ rm(list=ls())
 setwd("P:/Ludo/Tuto/R-tuto")
 
 
+##########################################################################
+# Mener une inférence bayésienne
+#   inférence sur la moyenne
+##########################################################################
+
+# Nous cherchons à estimer la taille moyenne mu des élèves de 6e
+# Notre à priori est que la taille suit une loi Normale N(140, 10)
+
+mu0 <- 140
+v0 <- 5
+
+curve(dnorm(x, mean = mu0, sd = v0), 
+      from = mu0 - 5 * v0, 
+      to = mu0 + 5 * v0, 
+      bty = "n", 
+      main = "Densité de la loi N(140, 5)")
+
+# Nous allons ensuite utiliser un échantillon de 15 valeurs de taille relevées
+# pour affiner cette estimation
+
+x <- c(133, 152, 170, 166, 155, 142, 139, 145, 149, 142, 165, 135, 150, 144, 148)
+n <- length(x)
+x_bar <- mean(x)
+
+# Supposons que la vraisemblance suive une loi Normale N(mu, 15)
+
+sigma0 <- 30
+
+mu_post <- (mu0 * (sigma0 / n)  + x_bar * v0) / ((sigma0 / n) + v0)
+v_post <- sigma0 * v0 / (sigma0 * n + v0) 
+
+# La postériore est donc
+curve(dnorm(x, mean = mu_post, sd = v_post), 
+      col = "red",
+      add = TRUE)
+
+# Ainsi la taille moyenne après prise en compte des données vaut
+mu_post
+
+# Intervalle de crédibilité
+c(qnorm(0.025, mu_post, v_post), 
+  qnorm(0.975, mu_post, v_post))
+
+# Dans l'exemple ci-dessous la priore était peu informative car la variance
+# v0 était assez grande. Ainsi la prise en compte des données a fortement
+# influé sur la valeur finale de mu. mu converge rapidement vers la taille
+# moyenne de l'échantillon.
+
+# Nous pouvons refaire l'exercice en choisissant une priore très informative
+# c'est à dire avec un v0 très petit. Dans ce cas l'information apportée par
+# la priore va prédominer par rapport aux données.
+# Ainsi la valeur à postériori de mu va rester proche de la priore
+
+v0_bis <- 1
+mu_post_bis <- (mu0 * (sigma0 / n)  + x_bar * v0_bis) / ((sigma0 / n) + v0_bis)
+mu_post_bis
+
+curve(dnorm(x, mean = mu0, sd = v0),
+      from = 120, to = 160, 
+      ylim = c(0, 0.5),
+      col = "purple",
+      bty = "n",
+      main = "Comparaison de lois à priori")
+
+curve(dnorm(x, mean = mu0, sd = v0_bis),
+      col = "red",
+      add = TRUE)
+
+rug(mu_post, col = "purple", lwd = 2, ticksize = 0.3, lty = "dashed")
+rug(mu_post_bis, col = "red", lwd = 2, ticksize = 0.3, lty = "dashed")
+
+legend("topright", inset = .05, lty = c(1, 1, 2), 
+       c("Priore peu informative", "Priore informative", "Moyennes à postériori"), 
+       col = c("purple", "red", "black"))
+
+
+# Par la suite, nous allons utiliser une méthode de Monte-Carlo
+# pour générer un échantillon iid de la postériore
+
+
 # ------------------------------------------------------------------------
 # Générateur de nombres aléatoires
 # ------------------------------------------------------------------------
@@ -24,7 +104,8 @@ runif(3)
 set.seed(0)
 
 # ------------------------------------------------------------------------
-# Test du chi2
+# Test du chi2 d'adéquation
+#   H0 : Vérifie si un échantillon suit bien une certaine variable aléatoire 
 # ------------------------------------------------------------------------
 
 n <- 1000
@@ -35,9 +116,15 @@ u <- runif(n, 0, 1)
 N <- trunc(p * u)
 table(N)
 
-# Test du chi2
+# Test du chi2 d'adéquation
 #   H0 : Ui iid ~ U[0,1] 
+#   La p-valeur est grande donc on ne rejette pas H0
 chisq.test(table(N))
+
+
+t <- chisq.test(table(N))
+Zn <- sum((t$observed - n / p)^2) / (n / p)     # Stat de test
+Zn > qchisq(0.95, df = p-1)                     # Rejet de H0 ?
 
 
 # ------------------------------------------------------------------------
@@ -72,6 +159,7 @@ curve(pexp(x, 4), col = "red", add=TRUE)
 # Test de Kolmogorov-Smirnov
 ks.test(e, "pexp", lambda)
 
+
 # ------------------------------------------------------------------------
 # Algorithme d'Acceptation-Rejet
 #   Génération d'une loi Beta(2, 2)
@@ -79,14 +167,15 @@ ks.test(e, "pexp", lambda)
 
 n <- 1000
 
+# Afficher un graph sans rien
 plot(100, 100,
      xlim = c(0, 1), ylim = c(0, 6),
      xlab = "y", ylab = "f(y)",
      main = "Génération d'une loi Beta(2,2)")
 
-x <- matrix(0, nr = 1, nc = n)
+b22 <- matrix(0, nr = 1, nc = n)
 
-m = 6
+m = 6     # majorant
 i = 0
 k = 0
 
@@ -99,7 +188,7 @@ while(i <= n){
   points(y, u , pch = 20, cex = 0.2, col = "orange")
   
   if(u < 6 * y * (1 - y)){
-    x[i] <- y
+    b22[i] <- y
     i <- i + 1
     points(y, u, pch = 20, cex = 0.2, col = "green")
   }
@@ -112,6 +201,15 @@ legend("left", inset=.05, lty=c(1, 1, NA, NA), pch = c(NA, NA, 20, 20),
        c("Vraie densité", "m", "Points acceptés", "Points rejetés"), 
        col=c("purple", "red", "orange", "green"))
 
+
+# Densité à priori
+curve(dbeta(x, 2, 2), col = 2, xlim = c(-1, 2), main = "Densité de la loi Beta(2,2)")
+rug(b22)
+
+# QQ-plot
+qqplot(b22, rbeta(n, 2, 2), pch = 20)
+abline(0, 1, col = "orange")
+
 # Distribution générée
 hist(x, freq = FALSE, col = "grey", breaks = 50, main = "Distribution générée")
 curve(dbeta(x, 2, 2), 0, 1, add = TRUE, col = "red")
@@ -122,112 +220,6 @@ curve(pbeta(x, shape1 = 2, shape = 2), col = "red", add = TRUE)
 
 # Test de Kolmogorov-Smirnov
 ks.test(x, "pbeta", 2, 2)
-
-
-# ------------------------------------------------------------------------
-# Algorithme d'Acceptation-Rejet
-#   Génération d'une loi Gamma(1.5, 1)
-# ------------------------------------------------------------------------
-
-# TODO fix or remove ?
-
-n <- 1000
-alpha <- 0.5
-K <- exp(-0.5) / sqrt (2 * (1 - alpha))
-
-x <- matrix(0, nr = 1, nc = n)
-
-curve(dgamma(x, shape = 1.5, rate = 1), bty="n",
-      from = 0, to = 10, ylim = c(0, 1),
-      xlab = "y", ylab = "f(y)")
-
-i = 0
-k = 0
-
-while(i <= n){
-  k <- k + 1
-  v <- runif(1)
-  y <- -(1 / alpha) * log(v)          # y ~ loi exponentielle(alpha)
-  u <- runif(1)
-  
-  points(y, sqrt(y) * exp(-(1 - alpha) * y) / K, pch = 20, cex = 0.2, col = "blue")
-  # points(y, exp(-alpha * y) * K, pch = 20, cex = 0.2, col = "red")
-  points(y, u, pch = 20, cex = 0.2, col = "orange")
-  
-  if(u <= sqrt(y) * exp(-(1 - alpha) * y) / K){
-    x[i] <- y
-    i <- i + 1
-    points(y , u, pch = 20, cex = 0.2, col = "green")
-  }
-}
-
-matrix(c(k, k-n), ncol = 2, dimnames = list(" ", c("iter", "rejet")))
-
-# Fonction de répartition
-plot(ecdf(x), col = "blue", main = "Comparaison de fonctions de répartitions")
-curve(pgamma(x, shape = 1.5, rate = 1), col = "red", add = TRUE)
-
-ks.test(x, "pgamma", 1.5, 1)
-
-
-
-
-# ------------------------------------------------------------------------
-# Algorithme d'Acceptation-Rejet                  BIS
-#   Génération d'une loi Gamma(1.5, 1)
-# ------------------------------------------------------------------------
-
-# TODO fix or remove ?
-
-n <- 1000
-alpha <- 0.9
-K <- exp(-0.5) / sqrt (2 * (1 - alpha))
-
-x <- matrix(0, nr = 1, nc = n)
-
-curve(dgamma(x, shape = 1.5, rate = 1), bty="n",
-      from = 0, to = 10, ylim = c(0, 1),
-      xlab = "y", ylab = "f(y)")
-
-i = 0
-k = 0
-
-while(i <= n){
-  k <- k + 1
-  v <- runif(1)
-  y <- -(1 / alpha) * log(v)          # y ~ loi exponentielle(alpha)
-  m <- exp(-alpha * y) * K
-  u <- runif(1, 0, m)
-  
-  points(y, m, pch = 20, cex = 0.2, col = "blue")
-  # points(y, exp(-alpha * y) * K, pch = 20, cex = 0.2, col = "red")
-  points(y, u, pch = 20, cex = 0.2, col = "orange")
-  
-  if(u <= sqrt(y) * exp(- y)){
-    x[i] <- y
-    i <- i + 1
-    points(y , u, pch = 20, cex = 0.2, col = "green")
-  }
-}
-
-
-
-# ------------------------------------------------------------------------
-# Algorithme d'Acceptation-Rejet
-#   Génération d'une loi Beta(3, 6)
-# ------------------------------------------------------------------------
-
-n <- 100000
-
-sampled <- data.frame(proposal = runif(n, 0, 1))
-sampled$targetDensity <- dbeta(sampled$proposal, 3, 6)
-
-maxDens = max(sampled$targetDensity, na.rm = TRUE)
-sampled$accepted = ifelse(runif(n, 0, 1) < sampled$targetDensity / maxDens, TRUE, FALSE)
-
-hist(sampled$proposal[sampled$accepted], freq = FALSE, col = "grey", breaks = 100)
-curve(dbeta(x, 3,6),0,1, add = TRUE, col = "red")
-
 
 
 ##########################################################################

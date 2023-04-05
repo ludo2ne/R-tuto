@@ -47,6 +47,7 @@ cbind(mon_vecteur,mon_vecteur_sequence)
 # indicateurs statistiques (moyenne, min, max)
 summary(mon_vecteur)
 
+
 #-------------------------------------------------------------------
 # Vecteurs et Booleens
 #-------------------------------------------------------------------
@@ -66,3 +67,12 @@ mon_2e_vecteur_booleen <- mon_vecteur > 10 & mon_vecteur < 20
 !mon_vecteur_booleen      # complementaire
 any(mon_vecteur_booleen)  # x1 OR x2 OR ... OR xN
 all(mon_vecteur_booleen)  # x1 AND x2 AND ... AND xN
+
+
+#-------------------------------------------------------------------
+# Trucs et astuces
+#-------------------------------------------------------------------
+
+# Garder une valeur sur 2 (par exemple les index impair)
+v <- 1:20
+v[c(TRUE, FALSE)]

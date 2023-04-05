@@ -33,6 +33,7 @@ curve(dexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Densité de la
 curve(pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de répartition de la loi Exponentielle")
 curve(1 - pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de survie de la loi Exponentielle")
 
+
 # -----------------------------------------------------------------------------
 # Loi Normale
 # -----------------------------------------------------------------------------
@@ -65,6 +66,7 @@ legend("topleft", inset=.05, lty=c(1, 1),
 
 x
 qnorm(pnorm(x))
+
 
 # -----------------------------------------------------------------------------
 # Loi du Chi2
@@ -146,6 +148,12 @@ curve(dgamma(x, shape = 1, rate = 1.5),
       bty="n", 
       xlab="")
 
+curve(dgamma(x, shape = 0.001, scale = 0.001), 
+      from=0, 
+      to=1, 
+      bty="n", 
+      xlab="")
+
 
 # -----------------------------------------------------------------------------
 # Loi Beta
@@ -216,3 +224,27 @@ plot(density(n01), main = "Comparaison des densités",
 curve(dnorm(x), col = "red", add = TRUE)
 legend("topleft", inset=.05, lty=c(1, 1),
        c("Densité Théorique", "Densité Empirique"), col= c("red", "blue"))
+
+# Fonction de répartition empirique
+ecdf(n01)
+plot(ecdf(n01))
+
+
+# -----------------------------------------------------------------------------
+# Générer un échantillon selon une loi de probabilité spécifique
+# -----------------------------------------------------------------------------
+
+# Simuler 20 lancers de dé
+valeurs <- c(1, 2, 3, 4, 5, 6)       # Valeurs possibles
+probabilites <- rep(1/6, 6)          # Probabilités d'obtenir chaque valeur
+sample(x = valeurs,
+       prob = probabilites,
+       size = 20,
+       replace = TRUE)
+
+# Dé truqué où l'on a une proba de 0.5 d'avoir un 6
+probabilites <- c(0.1, 0.1, 0.1, 0.1, 0.1, 0.5)
+sample(x = valeurs,
+       prob = probabilites,
+       size = 20,
+       replace = TRUE)

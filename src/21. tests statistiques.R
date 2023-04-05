@@ -99,3 +99,19 @@ qqnorm(e) # p=0.00036 on rejette l'hypothèse et on vérifie avec un QQplot
 # -----------------------------------------------------------------------------
 
 
+# ------------------------------------------------------------------------
+# Test du chi2 d'adéquation
+#   H0 : Vérifie si un échantillon suit bien une certaine variable aléatoire 
+# ------------------------------------------------------------------------
+
+https://sites.google.com/site/rgraphiques/4--stat/comparer-et-%C3%A9tudier-des-effectifs-et-proportions-en-langage-r/test-du-ch2-khi2
+
+# ------------------------------------------------------------------------
+# Test du chi2 d'indépendance
+# ------------------------------------------------------------------------
+
+
+
+# ------------------------------------------------------------------------
+# Test du chi2 d'homogénéité
+# ------------------------------------------------------------------------

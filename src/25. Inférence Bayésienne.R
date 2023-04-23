@@ -1,21 +1,19 @@
 #**************************************************************************
-#* InfÈrence BayÈsienne                                                   *
+#* Inf√©rence Bay√©sienne                                                   *
 #* Ludovic Deneuville                                                     *
 #* ENSAI 2023                                                             *
 #**************************************************************************
 
 rm(list=ls())
 
-setwd("P:/Ludo/Tuto/R-tuto")
-
 
 ##########################################################################
-# Mener une infÈrence bayÈsienne
-#   infÈrence sur la moyenne
+# Mener une inf√©rence bay√©sienne
+#   inf√©rence sur la moyenne
 ##########################################################################
 
-# Nous cherchons ‡ estimer la taille moyenne mu des ÈlËves de 6e
-# Notre ‡ priori est que la taille suit une loi Normale N(140, 10)
+# Nous cherchons √† estimer la taille moyenne mu des √©l√®ves de 6e
+# Notre √† priori est que la taille suit une loi Normale N(140, 5)
 
 mu0 <- 140
 v0 <- 5
@@ -24,9 +22,9 @@ curve(dnorm(x, mean = mu0, sd = v0),
       from = mu0 - 5 * v0, 
       to = mu0 + 5 * v0, 
       bty = "n", 
-      main = "DensitÈ de la loi N(140, 5)")
+      main = "Densit√© de la loi N(140, 5)")
 
-# Nous allons ensuite utiliser un Èchantillon de 15 valeurs de taille relevÈes
+# Nous allons ensuite utiliser un √©chantillon de 15 valeurs de taille relev√©es
 # pour affiner cette estimation
 
 x <- c(133, 152, 170, 166, 155, 142, 139, 145, 149, 142, 165, 135, 150, 144, 148)
@@ -40,27 +38,27 @@ sigma0 <- 30
 mu_post <- (mu0 * (sigma0 / n)  + x_bar * v0) / ((sigma0 / n) + v0)
 v_post <- sigma0 * v0 / (sigma0 * n + v0) 
 
-# La postÈriore est donc
+# La post√©riore est donc
 curve(dnorm(x, mean = mu_post, sd = v_post), 
       col = "red",
       add = TRUE)
 
-# Ainsi la taille moyenne aprËs prise en compte des donnÈes vaut
+# Ainsi la taille moyenne apr√®s prise en compte des donn√©es vaut
 mu_post
 
-# Intervalle de crÈdibilitÈ
+# Intervalle de cr√©dibilit√©
 c(qnorm(0.025, mu_post, v_post), 
   qnorm(0.975, mu_post, v_post))
 
-# Dans l'exemple ci-dessous la priore Ètait peu informative car la variance
-# v0 Ètait assez grande. Ainsi la prise en compte des donnÈes a fortement
-# influÈ sur la valeur finale de mu. mu converge rapidement vers la taille
-# moyenne de l'Èchantillon.
+# Dans l'exemple ci-dessous la priore √©tait peu informative car la variance
+# v0 √©tait assez grande. Ainsi la prise en compte des donn√©es a fortement
+# influ√© sur la valeur finale de mu. mu converge rapidement vers la taille
+# moyenne de l'√©chantillon.
 
-# Nous pouvons refaire l'exercice en choisissant une priore trËs informative
-# c'est ‡ dire avec un v0 trËs petit. Dans ce cas l'information apportÈe par
-# la priore va prÈdominer par rapport aux donnÈes.
-# Ainsi la valeur ‡ postÈriori de mu va rester proche de la priore
+# Nous pouvons refaire l'exercice en choisissant une priore tr√®s informative
+# c'est √† dire avec un v0 tr√®s petit. Dans ce cas l'information apport√©e par
+# la priore va pr√©dominer par rapport aux donn√©es.
+# Ainsi la valeur √† post√©riori de mu va rester proche de la priore
 
 v0_bis <- 1
 mu_post_bis <- (mu0 * (sigma0 / n)  + x_bar * v0_bis) / ((sigma0 / n) + v0_bis)
@@ -71,7 +69,7 @@ curve(dnorm(x, mean = mu0, sd = v0),
       ylim = c(0, 0.5),
       col = "purple",
       bty = "n",
-      main = "Comparaison de lois ‡ priori")
+      main = "Comparaison de lois √† priori")
 
 curve(dnorm(x, mean = mu0, sd = v0_bis),
       col = "red",
@@ -81,19 +79,19 @@ rug(mu_post, col = "purple", lwd = 2, ticksize = 0.3, lty = "dashed")
 rug(mu_post_bis, col = "red", lwd = 2, ticksize = 0.3, lty = "dashed")
 
 legend("topright", inset = .05, lty = c(1, 1, 2), 
-       c("Priore peu informative", "Priore informative", "Moyennes ‡ postÈriori"), 
+       c("Priore peu informative", "Priore informative", "Moyennes √† post√©riori"), 
        col = c("purple", "red", "black"))
 
 
-# Par la suite, nous allons utiliser une mÈthode de Monte-Carlo
-# pour gÈnÈrer un Èchantillon iid de la postÈriore
+# Par la suite, nous allons utiliser une m√©thode de Monte-Carlo
+# pour g√©n√©rer un √©chantillon iid de la post√©riore
 
 
 # ------------------------------------------------------------------------
-# GÈnÈrateur de nombres alÈatoires
+# G√©n√©rateur de nombres al√©atoires
 # ------------------------------------------------------------------------
 
-# R utilise le gÈnÈrateur de Mersenne-Twister de pÈriode 2^19937-1
+# R utilise le g√©n√©rateur de Mersenne-Twister de p√©riode 2^19937-1
 
 set.seed(0)
 runif(4)
@@ -104,19 +102,19 @@ runif(3)
 set.seed(0)
 
 # ------------------------------------------------------------------------
-# Test du chi2 d'adÈquation
-#   H0 : VÈrifie si un Èchantillon suit bien une certaine variable alÈatoire 
+# Test du chi2 d'ad√©quation
+#   H0 : V√©rifie si un √©chantillon suit bien une certaine variable al√©atoire 
 # ------------------------------------------------------------------------
 
 n <- 1000
 p <- 5
 u <- runif(n, 0, 1)
 
-# DÈcoupage en p classes
+# D√©coupage en p classes
 N <- trunc(p * u)
 table(N)
 
-# Test du chi2 d'adÈquation
+# Test du chi2 d'ad√©quation
 #   H0 : Ui iid ~ U[0,1] 
 #   La p-valeur est grande donc on ne rejette pas H0
 chisq.test(table(N))
@@ -131,29 +129,33 @@ Zn > qchisq(0.95, df = p-1)                     # Rejet de H0 ?
 # Test de Kolmogorov-Smirnov
 # ------------------------------------------------------------------------
 
-# Pour comparer les fonctions de rÈpartition empiriques et thÈoriques
+# Pour comparer les fonctions de r√©partition empiriques et th√©oriques
 # H0 : Ui iid ~ U[0,1]
 
 ks.test(u, "punif", 0 ,1)
 
 # ECDF : Empirical Cumulative Distribution Function
-plot(ecdf(u), col = "blue", main = "Comparaison de fonctions de rÈpartitions")
+plot(ecdf(u), col = "blue", main = "Comparaison de fonctions de r√©partitions")
 curve(punif(x), col = "red", add=TRUE)
 legend("topleft", inset=.05, lty=c(1, 1), 
-       c("Empirique", "ThÈorique"), 
+       c("Empirique", "Th√©orique"), 
        col=c("blue","red"))
 
 
 # ------------------------------------------------------------------------
-# Simulation de la loi exponentielle
+# Simulation d'un √©chantillon de la loi exponentielle
+#   √† partir de la loi Uniforme
+#   par inversion de la fonction de r√©partition
 # ------------------------------------------------------------------------
 
+n <- 150
 lambda <- 4
+
 u <- runif(n, 0, 1)
-e <- -log(u) / lambda
+e <- -log(u) / lambda   # inverse de la fonction de r√©partition de la loi exponentielle
 
 # Visualisation
-plot(ecdf(e), col = "blue", main = "Comparaison de fonctions de rÈpartitions")
+plot(ecdf(e), col = "blue", main = "Comparaison de fonctions de r√©partitions")
 curve(pexp(x, 4), col = "red", add=TRUE)
 
 # Test de Kolmogorov-Smirnov
@@ -161,17 +163,44 @@ ks.test(e, "pexp", lambda)
 
 
 # ------------------------------------------------------------------------
-# Algorithme d'Acceptation-Rejet
-#   GÈnÈration d'une loi Beta(2, 2)
+# Simulation d'un √©chantillon de loi discr√®te
+#   √† partir de la loi Uniforme
+#   par inversion de la fonction de r√©partition
 # ------------------------------------------------------------------------
+
+n <- 1000
+
+# D√© truqu√© qui tombe plus souvent sur le 1
+p <- c(5/10, 1/10, 1/10, 1/10, 1/10, 1/10)
+
+u <- runif(n, 0, 1)
+X <- 1 + (u > cumsum(p)[1]) + (u > cumsum(p)[2]) + (u > cumsum(p)[3]) + (u > cumsum(p)[4]) + (u > cumsum(p)[5])
+
+# R√©partition
+prop.table(table(X))
+plot(table(X)/n)
+
+# Test du chi2
+chisq.test(table(X), p = p)
+
+
+# ------------------------------------------------------------------------
+# Algorithme d'Acceptation-Rejet
+#   Densit√© connue, born√©e par une constante m et admet un support compact
+#   G√©n√©ration d'une loi Beta(2,2)
+# ------------------------------------------------------------------------
+
+rm(list=ls())
+
+set.seed(888)
 
 n <- 1000
 
 # Afficher un graph sans rien
 plot(100, 100,
-     xlim = c(0, 1), ylim = c(0, 6),
+     xlim = c(-0.2, 1.2), ylim = c(0, 6),
      xlab = "y", ylab = "f(y)",
-     main = "GÈnÈration d'une loi Beta(2,2)")
+     main = "G√©n√©ration d'une loi Beta(2,2)")
 
 b22 <- matrix(0, nr = 1, nc = n)
 
@@ -198,33 +227,70 @@ matrix(c(k, k-n), ncol = 2, dimnames = list(" ", c("nb_iterations", "nb_rejets")
 
 curve(dbeta(x, shape1 = 2, shape2 = 2), bty="n", col = "purple", add = TRUE)
 legend("left", inset=.05, lty=c(1, 1, NA, NA), pch = c(NA, NA, 20, 20), 
-       c("Vraie densitÈ", "m", "Points acceptÈs", "Points rejetÈs"), 
+       c("Vraie densit√©", "m", "Points accept√©s", "Points rejet√©s"), 
        col=c("purple", "red", "orange", "green"))
 
 
-# DensitÈ ‡ priori
-curve(dbeta(x, 2, 2), col = 2, xlim = c(-1, 2), main = "DensitÈ de la loi Beta(2,2)")
+# Densit√© √† priori
+curve(dbeta(x, 2, 2), col = 2, xlim = c(-1, 2), main = "Densit√© de la loi Beta(2,2)")
 rug(b22)
 
 # QQ-plot
 qqplot(b22, rbeta(n, 2, 2), pch = 20)
 abline(0, 1, col = "orange")
 
-# Distribution gÈnÈrÈe
-hist(x, freq = FALSE, col = "grey", breaks = 50, main = "Distribution gÈnÈrÈe")
+# Distribution g√©n√©r√©e
+hist(b22, freq = FALSE, col = "grey", breaks = 50, main = "Distribution g√©n√©r√©e")
 curve(dbeta(x, 2, 2), 0, 1, add = TRUE, col = "red")
 
-# Fonction de rÈpartition
-plot(ecdf(x), col = "blue", main = "Comparaison de fonctions de rÈpartitions")
+# Fonction de r√©partition
+plot(ecdf(b22), col = "blue", main = "Comparaison de fonctions de r√©partitions")
 curve(pbeta(x, shape1 = 2, shape = 2), col = "red", add = TRUE)
 
 # Test de Kolmogorov-Smirnov
-ks.test(x, "pbeta", 2, 2)
+ks.test(b22, "pbeta", 2, 2)
+
+
+# ------------------------------------------------------------------------
+# Algorithme d'Acceptation-Rejet (autres possibilit√©s)
+#   Densit√© connue, born√©e par une fonction
+#   Densit√© connue √† une constante multiplicative pr√®s (ex : Gamma(3/2, 1))
+# ------------------------------------------------------------------------
 
 
 ##########################################################################
-# MÈthode de Monte-Carlo
+# M√©thode de Monte-Carlo
 ##########################################################################
+
+# Rappels :
+# Nous souhaitons mener l'inf√©rence pour calculer par exemple :
+# - la moyenne √† post√©riori
+# - la variance √† post√©riori
+# - un intervalle de cr√©dibilit√© de theta
+# Si nous savons g√©n√©rer selon la loi √† post√©riori, nous allons pouvoir
+# calculer des estimations MC de ces quantit√©s
+# Le but de la m√©thode MC est d'√©valuer l'int√©grale d'une fonction h
+
+
+# ------------------------------------------------------------------------
+# Premier algo MC tr√®s simple
+#   int√©grale de x**2 entre 0 et 1
+# ------------------------------------------------------------------------
+
+rm(list=ls())
+
+set.seed(888)
+
+n <- 1000
+U <- runif(n, 0, 1)
+
+h <- function(x){
+  x**2
+}
+
+# On obtient une valeur proche de 1/3
+I_hat <- sum(h(U)) / n ; I_hat
+
 
 
 # ------------------------------------------------------------------------
@@ -246,20 +312,19 @@ g <- function(x, y){
 I_hat_n <- sum(g(X, Y)) / n
 
 # Estimation de Pi (Aire du disque de rayon 1)
-#   on multiplie par 4 car X et Y sont ‡ valeurs dans [0, 1] 
-#   donc n'appartiennent qu'au quart de cercle supÈrieur droit
-4 * I_hat_n
+#   on multiplie par 4 car X et Y sont √† valeurs dans [0, 1] 
+#   donc n'appartiennent qu'au quart de cercle sup√©rieur droit
+Pi_hat <- 4 * I_hat_n ; Pi_hat
 
-# Estimation de la variance par la mÈthode de Monte-Carlo
-sigma_hat_n <- sum(g(X, Y)^2) / n - I_hat_n^2
+# Variance empirique
+S2n <- 16 * sum((g(X, Y) - I_hat_n)**2) / (n - 1)
 
-# Comme g = g≤, la variance est directement Ègale ‡
-I_hat_n - I_hat_n^2
+# Erreur de Monte-Carlo
+sqrt(S2n) / sqrt(n)
 
-
-# Intervalle de confiance ‡ 95% de Pi
-4 * c(I_hat_n - qnorm(0.975) * sqrt(sigma_hat_n) / sqrt(n),
-      I_hat_n + qnorm(0.975) * sqrt(sigma_hat_n) / sqrt(n))
+# Intervalle de confiance √† 95% de Pi
+c(Pi_hat - qnorm(0.975) * sqrt(S2n) / sqrt(n),
+  Pi_hat + qnorm(0.975) * sqrt(S2n) / sqrt(n))
 
 
 estimer_pi <- function(n){
@@ -271,12 +336,33 @@ estimer_pi <- function(n){
       res[j] <- 4 * sum(1 * (X^2 + Y^2 <= 1)) / j
     }
   }
-  plot(ts(res))
+  plot(ts(res), main = "Moyennes ergodiques")
   abline(h = pi, col = "red")
   return(res)
 }
 
 estimer_pi(200)
+
+
+# ------------------------------------------------------------------------
+# Estimation par Monte-Carlo
+# de int√©grale entre 0 et 1 de exp(-x)/(1 + x**2)
+# ------------------------------------------------------------------------
+
+TODO cours p66
+
+
+# Avec un √©chantillon de U[0,1]
+
+
+
+# Avec un √©chantillon de exp(1)
+
+
+
+# Avec un √©hcnatillon de Cauchy
+
+
 
 # ------------------------------------------------------------------------
 # X ~ Binom(p)
@@ -289,8 +375,8 @@ n <- 100
 
 P <- rbeta(n, 0.5, 0.5)
 
-# On observe k rÈalisations de X et on cherche la loi ‡ postÈriori de p
-# et l'estimation de p par moyenne ‡ postÈriori
+# On observe k r√©alisations de X et on cherche la loi √† post√©riori de p
+# et l'estimation de p par moyenne √† post√©riori
 k <- 10
 sum_X_j <- 7
 
@@ -300,18 +386,89 @@ p_hat <- sum(P * P^sum_X_j * (1 - P)^(k - sum_X_j)) / sum(P^sum_X_j * (1 - P)^(k
 
 
 ##########################################################################
-# MÈthode de Monte-Carlo par chaine de Markov
+# M√©thode de Monte-Carlo par chaine de Markov (MCMC)
 ##########################################################################
 
-# Si l'on ne sait pas simuler la loi f, on ne peut pas appliquer la mÈthode de Monte-Carlo
+# Si l'on ne sait pas simuler la loi f, on ne peut pas appliquer la m√©thode de Monte-Carlo
 # On va utiliser une chaine de Markov de loi stationnaire f
 
 # ------------------------------------------------------------------------
 # Algorithme de Metropolis Hasting
 # ------------------------------------------------------------------------
 
+set.seed(5555)
 
+# Cette fonction cr√©e une chaine de Markov qui a pour loi stationnaire
+# la loi Normale Centr√©e R√©duite
+#   x0 : √©tat initial de la chaine
+#   L : longeur de la chaine
+#   s : param√®tre
+chaine_mcmc_N01 <- function(x0, L, s){
+  res <- rep(NA, L)
+  res[1] <- x0
+  for (l in 2:L){
+    x_old <- res[l-1]
+    x_new <- runif(1, min = x_old - 2 * s, max = x_old + 2 * s)    # g√©n√©rer un candidat
+    u_new <- runif(1)
+    
+    # En gros on regarde si la nouvelle valeur est plus plausible que l'ancienne
+    rho <- pmin(1, dnorm(x_new) / dnorm(x_old))
+    
+    # Si oui (rho = 1) 
+    #   on accepte la nouvelle valeur
+    # Si non
+    #   on va parfois accepter, parfois rejeter la nouvelle valeur
+    if (u_new < rho){               # on accepte le nouveau candidat
+      res[l] <- x_new
+    }
+    else{                           # on conserve l'ancienne valeur
+      res[l] <- x_old
+    }
+  }
+  res
+}
 
+# Exemple
+# On part volontairement d'une valeur x0 √©loign√©e de la moyenne
+# La valeur du param√®tre s doit √™tre :
+#   - assez grande pour converger rapidement
+#   - mais pas trop pour √©viter des effets plateau
+Y <- chaine_mcmc_N01(x0 = -10, L = 1600, s = 0.8)
 
+# La convergence vers des valeurs classiques d'une N(0,1) est rapide
+plot(ts(Y), main = "S√©rie temporelle")
 
+# La distribution ressemble √† celle d'une N(0,1)
+hist(a, breaks = 100, main = "Histogramme")
+
+# Utilisation de la librairie coda
+library(coda)
+
+Y <- as.mcmc(Y)
+summary(Y)
+
+# S√©rie temporelle
+traceplot(Y)
+
+# Si on retire 600 obs correspondant √† la p√©riode de rodage de la chaine
+Y <- Y[-(1:600)]
+Y <- as.mcmc(Y)
+
+# Quantiles ergodiques
+cumuplot(Y)
+
+# Estimation de la densit√©
+densplot(Y)
+
+# Autocorr√©lation (bien car cela d√©croit rapidement)
+autocorr.plot(Y)
+
+# Tableau 1
+#   Mean           : I_L     
+#   SD             : Variance empirique V(I_L)  
+#   Naive SE       : Erreur MC si echantillon iid         
+#   Time-series SE : Erreur MCMC
+# Tableau 2
+#   quantiles empiriques
+summary(Y)
 

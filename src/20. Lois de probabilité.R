@@ -18,19 +18,19 @@ rm(list=ls())
 
 runif(1, min = 0, max = 1)
 
-curve(dunif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "Densité de la loi Uniforme")
-curve(punif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "Fonction de répartition de la loi Uniforme")
+curve(dunif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "DensitÃ© de la loi Uniforme")
+curve(punif(x, min = 0, max = 1), col = "red", xlim = c(-0.2, 1.2), main = "Fonction de rÃ©partition de la loi Uniforme")
 
 
 # -----------------------------------------------------------------------------
 # Loi Exponentielle
 # -----------------------------------------------------------------------------
 
-lambda <- 2               # Paramétre de la loi exponentielle
-rexp(1, rate = lambda)    # Générer une valeur
+lambda <- 2               # ParamÃ©tre de la loi exponentielle
+rexp(1, rate = lambda)    # GÃ©nÃ©rer une valeur
 
-curve(dexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Densité de la loi Exponentielle")
-curve(pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de répartition de la loi Exponentielle")
+curve(dexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "DensitÃ© de la loi Exponentielle")
+curve(pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de rÃ©partition de la loi Exponentielle")
 curve(1 - pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction de survie de la loi Exponentielle")
 
 
@@ -38,18 +38,18 @@ curve(1 - pexp(x, rate = lambda), col = "red", xlim = c(0, 5), main = "Fonction 
 # Loi Normale
 # -----------------------------------------------------------------------------
 
-# Densité
+# DensitÃ©
 x <- seq(-5,5, by=0.1)
 plot(x = x, 
      y = dnorm(x), 
      type = "l",
-     main= "Densité de la loi Normale centrée réduite")
+     main= "DensitÃ© de la loi Normale centrÃ©e rÃ©duite")
 
-# Fonction de réparition
+# Fonction de rÃ©parition
 plot(x = x, 
      y = pnorm(x), 
      type = "l",
-     main= "Fonction de répartition de la loi Normale centrée réduite")
+     main= "Fonction de rÃ©partition de la loi Normale centrÃ©e rÃ©duite")
 
 # Quantiles
 x1 <- seq(0,1, by=0.01)
@@ -57,7 +57,7 @@ plot(x = x1,
      y = qnorm(x1), 
      xlim = c(0,1),
      type = "l",
-     main= "Fonction de répartition de la loi Normale centrée réduite")
+     main= "Fonction de rÃ©partition de la loi Normale centrÃ©e rÃ©duite")
 abline(h=1.96, col="red")
 abline(v=0.975, col="red")
 legend("topleft", inset=.05, lty=c(1, 1),
@@ -72,15 +72,15 @@ qnorm(pnorm(x))
 # Loi du Chi2
 # -----------------------------------------------------------------------------
 
-rchisq(1, df = 4)       # Générer une valeur de la loi de chi2 à 4 degrés de liberté
-qchisq(0.95, df = 3)    # Quantile d'ordre 0.95 de la loi de chi2 à 3 degrés de liberté
-pchisq(10, df = 2)      # Fonction de répartition
+rchisq(1, df = 4)       # GÃ©nÃ©rer une valeur de la loi de chi2 Ã  4 degrÃ©s de libertÃ©
+qchisq(0.95, df = 3)    # Quantile d'ordre 0.95 de la loi de chi2 Ã  3 degrÃ©s de libertÃ©
+pchisq(10, df = 2)      # Fonction de rÃ©partition
 
 
-# Visualisation de la densité
+# Visualisation de la densitÃ©
 curve(dchisq(x, df = 1), from = 0, to = 50, col = "blue",
       xlab = "x",
-      ylab = "Densité", 
+      ylab = "DensitÃ©", 
       main = "Loi du Chi2")
 curve(dchisq(x, df = 2), from = 0, to = 50, col = "cyan", add = TRUE)
 curve(dchisq(x, df = 3), from = 0, to = 50, col = "red", add = TRUE)
@@ -91,7 +91,7 @@ curve(dchisq(x, df = 20), from = 0, to = 50, col = "orange", add = TRUE)
 legend("topright", inset=.05, lty = 1,
        c("1","2","3","4","10","20"), 
        col = c("blue", "cyan", "red", "green", "purple", "orange"),
-       title = "Degrés de liberté")
+       title = "DegrÃ©s de libertÃ©")
 
 
 # -----------------------------------------------------------------------------
@@ -141,7 +141,7 @@ curve(df(x, df1 = 8, df2 = 100), from = 0, to = 10,
 # Loi Gamma
 # -----------------------------------------------------------------------------
 
-# Densité
+# DensitÃ©
 curve(dgamma(x, shape = 1, rate = 1.5), 
       from=0, 
       to=1, 
@@ -165,7 +165,7 @@ curve(dbeta(x, 10, 2),
       bty="n", 
       xlab="")
 
-# La loi Beta(1, 1) correspond à la loi uniforme sur [0, 1]
+# La loi Beta(1, 1) correspond Ã  la loi uniforme sur [0, 1]
 curve(dbeta(x, 1, 1), 
       from=0, 
       to=1, 
@@ -181,7 +181,7 @@ curve(dbeta(x, 1, 1),
 # Loi de Poisson
 # -----------------------------------------------------------------------------
 
-lambda <- 3      # Paramètre de la loi de Poisson
+lambda <- 3      # ParamÃ¨tre de la loi de Poisson
 
 plot(dpois(x = 1:50, lambda = 3), pch = 3)
 
@@ -208,43 +208,88 @@ rbinom(10, size = n, prob = p)
 ###############################################################################
 
 
-n <- 150                 # Nombre de valeur générées
+n <- 150                 # Nombre de valeur gÃ©nÃ©rÃ©es
 n01 <- rnorm(n, 0, 1)
 
-curve(dnorm(x), col = 2, xlim = c(-5, 5), main = "Densité d'une loi Normale")
-rug(n01, col = "blue")   # Tapis des valeurs générées
+curve(dnorm(x), col = 2, xlim = c(-5, 5), main = "DensitÃ© d'une loi Normale")
+rug(n01, col = "blue")   # Tapis des valeurs gÃ©nÃ©rÃ©es
 
 # Histogramme
 hist(n01, breaks = 20)
 
-# Densité estimée à partir des valeurs générées
+# DensitÃ© estimÃ©e Ã  partir des valeurs gÃ©nÃ©rÃ©es
 density(n01)
-plot(density(n01), main = "Comparaison des densités", 
+plot(density(n01), main = "Comparaison des densitÃ©s", 
      xlim = c(-5, 5), ylim = c(0, 0.5), col = "blue")
 curve(dnorm(x), col = "red", add = TRUE)
 legend("topleft", inset=.05, lty=c(1, 1),
-       c("Densité Théorique", "Densité Empirique"), col= c("red", "blue"))
+       c("DensitÃ© ThÃ©orique", "DensitÃ© Empirique"), col= c("red", "blue"))
 
-# Fonction de répartition empirique
+# Fonction de rÃ©partition empirique
 ecdf(n01)
 plot(ecdf(n01))
 
+# Quantiles empiriques
+quantile(n01, c(0.025, 0.975))
 
 # -----------------------------------------------------------------------------
-# Générer un échantillon selon une loi de probabilité spécifique
+# GÃ©nÃ©rer un Ã©chantillon selon une loi de probabilitÃ© spÃ©cifique
 # -----------------------------------------------------------------------------
 
-# Simuler 20 lancers de dé
+# Simuler 20 lancers de dÃ©
 valeurs <- c(1, 2, 3, 4, 5, 6)       # Valeurs possibles
-probabilites <- rep(1/6, 6)          # Probabilités d'obtenir chaque valeur
+probabilites <- rep(1/6, 6)          # ProbabilitÃ©s d'obtenir chaque valeur
 sample(x = valeurs,
        prob = probabilites,
        size = 20,
        replace = TRUE)
 
-# Dé truqué où l'on a une proba de 0.5 d'avoir un 6
+# DÃ© truquÃ© oÃ¹ l'on a une proba de 0.5 d'avoir un 6
 probabilites <- c(0.1, 0.1, 0.1, 0.1, 0.1, 0.5)
 sample(x = valeurs,
        prob = probabilites,
        size = 20,
        replace = TRUE)
+
+
+# ---------------------------------------------------------------------
+# Illustration de la loi des grands nombres 
+#   avec un dÃ© Ã©quilibrÃ© Ã  6 faces
+# ---------------------------------------------------------------------
+
+lgn_de6 <- function(n){
+  ech <- sample(x = 1:6, size = n, replace = TRUE)      # on lance un dÃ© Ã  6 faces n fois
+  res <- data.frame()
+  for (i in 1:n) {
+    res <- rbind(res, c(i, mean(ech[1:i])))                  # on stocke la proportion de 2
+  }
+  colnames(res) <- c("x", "p")
+  plot(res$x, res$p, 
+       main = "Moyenne des lancers de dÃ©",
+       xlab = "Nombre de lancers", ylab = "Proba",
+       xlim = c(0, n), ylim = c(0,6), typ = "l")
+  abline(h = 3.5, col = "red")
+}
+
+lgn_de6(1000)
+
+
+# ---------------------------------------------------------------------
+# Illustration du TCL
+#   Moyennes obtenues sur un loi uniforme
+# ---------------------------------------------------------------------
+
+tcl <- function(nb_sim, taille_ech){
+  res <- vector(length = nb_sim)
+  for (i in 1:nb_sim) {
+    ech <- runif(taille_ech)
+    res[i] <- mean(ech) - 0.5
+  }
+  hist(res, 
+       breaks = 25, col = "green", prob = TRUE,
+       main = "Distribution des moyennes\n des Ã©chantillons simulÃ©s selon une loi uniforme")
+  lines(density(res), col = 4, lwd = 2)
+}
+
+# Pour 1000 simulations d'un Ã©chantillon de taille 50
+tcl(1000, 50)

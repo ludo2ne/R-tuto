@@ -1,5 +1,5 @@
 #**************************************************************************
-#* Initiation � R avec RStudio                                            *
+#* Initiation à R avec RStudio                                            *
 #* Ludovic Deneuville                                                     *
 #* ENSAI 2023                                                             *
 #**************************************************************************
@@ -13,11 +13,26 @@
 # vider environnement
 rm(list=ls())
 
-# Definir un dossier comme repertoire de travail
+#-------------------------------------------------------------------
+# Répertoire de travail
+#-------------------------------------------------------------------
+
+# Definir un dossier comme répertoire de travail
 setwd("P:/Ludo/Tuto/R-tuto")
 
-# V�rifier le r�pertoire de travail
+# Vérifier le répertoire de travail
 getwd()
+
+#-------------------------------------------------------------------
+# Charger un fichier de données
+#-------------------------------------------------------------------
+
+# Jeux de données inclus dans R
+#   R dispose de nombreux jeux de données inclus
+data()               # pour lister tous les datasets disponibles
+data(mtcars)         # pour charger en mémoire un dataset
+mtcars
+
 
 #-------------------------------------------------------------------
 # Conditions et boucles
@@ -52,7 +67,7 @@ library(dplyr)
 
 pop <- 500
 case_when(
-  pop > 100000 ~ "Grande m�tropole",
+  pop > 100000 ~ "Grande métropole",
   pop > 10000  ~ "Grande ville",
   pop > 2000   ~ "Ville",
   TRUE         ~ "Village"

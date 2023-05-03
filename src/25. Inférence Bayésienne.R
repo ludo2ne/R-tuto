@@ -132,7 +132,7 @@ Zn > qchisq(0.95, df = p-1)                     # Rejet de H0 ?
 # Pour comparer les fonctions de répartition empiriques et théoriques
 # H0 : Ui iid ~ U[0,1]
 
-ks.test(u, "punif", 0 ,1)
+ks.test(u, "punif", 0 , 1)
 
 # ECDF : Empirical Cumulative Distribution Function
 plot(ecdf(u), col = "blue", main = "Comparaison de fonctions de répartitions")
@@ -281,6 +281,7 @@ rm(list=ls())
 
 set.seed(888)
 
+# On génére n valeurs entre 0 et 1 auxquelles on applique la fonction h
 n <- 1000
 U <- runif(n, 0, 1)
 
@@ -331,7 +332,7 @@ estimer_pi <- function(n){
   res <- rep(NA, n)
   for (i in 1:n) {
     for(j in 1:i){
-      X <- runif(j)
+      X <- runif(j)                                        # A CORRIGER
       Y <- runif(j)
       res[j] <- 4 * sum(1 * (X^2 + Y^2 <= 1)) / j
     }
@@ -346,22 +347,43 @@ estimer_pi(200)
 
 # ------------------------------------------------------------------------
 # Estimation par Monte-Carlo
-# de intégrale entre 0 et 1 de exp(-x)/(1 + x**2)
+# de l'intégrale entre 0 et 1 de exp(-x)/(1 + x**2)
 # ------------------------------------------------------------------------
 
-TODO cours p66
 
+rm(list=ls())
+
+
+n <- 1000
 
 # Avec un échantillon de U[0,1]
+set.seed(8888)
+U <- runif(n, 0, 1)
+h <- function(x){
+  exp(-x) / (1 + x**2)
+}
+I_hat <- sum(h(U)) / n ; I_hat
+EMC <- sqrt(sum((h(U) - I_hat)**2) / (n - 1)) / sqrt(n) ; EMC
 
 
+# Avec un échantillon de loi exponentielle
+set.seed(8888)
+E <- rexp(n, 1)
+h <- function(x){
+  1 / (1 + x**2) * (0 < x & x < 1)
+}
+I_hat <- sum(h(E)) / n ; I_hat
+EMC <- sqrt(sum((h(E) - I_hat)**2) / (n - 1)) / sqrt(n) ; EMC
 
-# Avec un échantillon de exp(1)
 
-
-
-# Avec un éhcnatillon de Cauchy
-
+# Avec un échantillon de Cauchy
+set.seed(8888)
+C <- rcauchy(n)
+h <- function(x){
+  (0 < x & x < 1) * exp(-x) * pi
+}
+I_hat <- sum(h(C)) / n ; I_hat
+EMC <- sqrt(sum((h(C) - I_hat)**2) / (n - 1)) / sqrt(n) ; EMC
 
 
 # ------------------------------------------------------------------------
@@ -439,7 +461,7 @@ Y <- chaine_mcmc_N01(x0 = -10, L = 1600, s = 0.8)
 plot(ts(Y), main = "Série temporelle")
 
 # La distribution ressemble à celle d'une N(0,1)
-hist(a, breaks = 100, main = "Histogramme")
+hist(Y, breaks = 100, main = "Histogramme")
 
 # Utilisation de la librairie coda
 library(coda)
@@ -453,6 +475,9 @@ traceplot(Y)
 # Si on retire 600 obs correspondant à la période de rodage de la chaine
 Y <- Y[-(1:600)]
 Y <- as.mcmc(Y)
+
+# Série temporelle
+traceplot(Y)
 
 # Quantiles ergodiques
 cumuplot(Y)
@@ -472,3 +497,5 @@ autocorr.plot(Y)
 #   quantiles empiriques
 summary(Y)
 
+# Test de Kolmogorov-Smirnov
+ks.test(Y, "pnorm", 0 , 1)

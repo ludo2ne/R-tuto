@@ -13,15 +13,35 @@
 # vider environnement
 rm(list=ls())
 
+
+#-------------------------------------------------------------------
+# Installer et utiliser une librairie (package)
+#-------------------------------------------------------------------
+
+# Installer un package (à faire une seule fois)
+install.packages("dplyr")
+
+# Utiliser le package
+library(dplyr)
+
+# Installer un package en choisissant le dossier d'installation
+my_lib <- paste0("C:",Sys.getenv("HOMEPATH"), "\\R")
+install.packages("ggplot2", lib = my_lib)
+
+# Liste des packages installés
+library()
+
+
 #-------------------------------------------------------------------
 # Répertoire de travail
 #-------------------------------------------------------------------
 
 # Definir un dossier comme répertoire de travail
-setwd("P:/Ludo/Tuto/R-tuto")
+setwd("P:/Ludo/Projets/R-tuto")
 
 # Vérifier le répertoire de travail
 getwd()
+
 
 #-------------------------------------------------------------------
 # Charger un fichier de données
@@ -39,7 +59,7 @@ mtcars
 #-------------------------------------------------------------------
 
 # If - Else
-condition1 = TRUE
+condition1 <- TRUE
 if (condition1){
   print("condition1 est vraie")
 }else{
@@ -47,7 +67,7 @@ if (condition1){
 }
 
 # Operateur ternaire
-condition2 = FALSE
+condition2 <- FALSE
 ifelse(condition2, "Si condition2 est vraie je fais ceci", "Sinon je fais cela")
 
 # For
@@ -56,15 +76,13 @@ for (i in 1:5) {
 }
 
 # While
-countdown = 10
+countdown <- 10
 while(countdown){    # quand countdown = 0 cela equivaut a FALSE
   print(countdown)
   countdown <- countdown - 1
 }
 
 # Case
-library(dplyr)
-
 pop <- 500
 case_when(
   pop > 100000 ~ "Grande métropole",
